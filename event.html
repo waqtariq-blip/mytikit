@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atif Aslam Live in Karachi — mytikit.pk</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --emerald-50:#E8F0EC;--emerald-100:#C7DCD0;--emerald-200:#95BFA9;
+  --emerald-500:#207A52;--emerald-700:#0F5132;--emerald-900:#06291A;
+  --silver-50:#FAFBFA;--silver-100:#F4F6F5;--silver-200:#E8ECEA;
+  --silver-300:#D6DBD8;--silver-400:#B3BBB7;--silver-600:#7A8580;
+  --silver-700:#4D5651;--ink:#0A1311;
+  --amber-500:#C77A1F;--amber-700:#8E5512;
+  --font-sans:'Geist',ui-sans-serif,system-ui,-apple-system,sans-serif;
+  --font-mono:'Geist Mono',ui-monospace,monospace;
+  --shadow-sm:0 1px 2px rgba(6,41,26,.06),0 1px 1px rgba(6,41,26,.04);
+  --shadow-md:0 8px 24px -8px rgba(6,41,26,.12),0 2px 4px rgba(6,41,26,.04);
+  --shadow-lg:0 24px 48px -16px rgba(6,41,26,.18),0 4px 8px rgba(6,41,26,.06);
+}
+html,body{background:var(--silver-100);color:var(--ink);font-family:var(--font-sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+img{display:block;max-width:100%}
+
+/* ── util bar ── */
+.util{background:var(--emerald-900);color:var(--silver-200);font:500 12px var(--font-sans);letter-spacing:.01em}
+.util .inner{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;align-items:center;height:32px;gap:18px}
+.util a{color:inherit;opacity:.8}.util a:hover{opacity:1}
+.util .spacer{flex:1}
+.util .pill{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:4px;background:rgba(255,255,255,.08)}
+.util .dot{width:6px;height:6px;border-radius:99px;background:#5E9C7E}
+
+/* ── header ── */
+.header{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--silver-300)}
+.header .inner{max-width:1200px;margin:0 auto;padding:0 24px;height:72px;display:flex;align-items:center;gap:24px}
+.logo{font:700 22px var(--font-sans);color:var(--emerald-900);letter-spacing:-.02em}
+.logo span{color:var(--emerald-500)}
+.nav{display:flex;gap:4px;margin-left:8px}
+.nav a{padding:8px 12px;border-radius:6px;font:500 14px var(--font-sans);color:var(--ink)}
+.nav a:hover{background:var(--silver-100)}
+.nav a.active{color:var(--emerald-700)}
+.header-right{margin-left:auto;display:flex;gap:8px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;border-radius:8px;font:500 15px var(--font-sans);border:1px solid transparent;transition:background 150ms,transform 150ms}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--emerald-700);color:#fff}
+.btn-primary:hover{background:#0B3D26}
+.btn-secondary{background:#fff;color:var(--ink);border-color:var(--silver-300)}
+.btn-secondary:hover{background:var(--silver-50);border-color:var(--silver-400)}
+.btn-sm{height:36px;padding:0 14px;font-size:13px}
+.btn-lg{height:52px;padding:0 28px;font-size:16px}
+
+/* ── breadcrumb ── */
+.breadcrumb{max-width:1200px;margin:0 auto;padding:16px 24px;display:flex;align-items:center;gap:8px;font:500 13px var(--font-sans);color:var(--silver-600)}
+.breadcrumb a{color:var(--silver-600)}.breadcrumb a:hover{color:var(--emerald-700)}
+.breadcrumb .sep{opacity:.5}
+.breadcrumb .current{color:var(--ink)}
+
+/* ── main layout ── */
+.main{max-width:1200px;margin:0 auto;padding:0 24px 80px;display:grid;grid-template-columns:1fr 380px;gap:40px;align-items:start}
+
+/* ── event hero ── */
+.event-hero{border-radius:16px;overflow:hidden;background:linear-gradient(135deg,#0F5132 0%,#06291A 60%,#9F2A2A 100%);aspect-ratio:16/7;position:relative;display:flex;align-items:flex-end;padding:40px}
+.event-hero::before{content:"";position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,#fff 0 2px,transparent 2px 6px,#fff 6px 7px,transparent 7px 13px);opacity:.04}
+.event-hero-content{position:relative;color:#fff}
+.event-hero .eyebrow{font:600 11px var(--font-sans);letter-spacing:.12em;text-transform:uppercase;color:var(--emerald-200);margin-bottom:10px}
+.event-hero h1{font:600 52px/1.05 var(--font-sans);letter-spacing:-.025em;margin-bottom:12px;text-wrap:balance}
+.event-hero .meta-row{display:flex;gap:24px;flex-wrap:wrap}
+.event-hero .meta-item{display:flex;align-items:center;gap:8px;font:500 15px var(--font-sans);color:rgba(255,255,255,.85)}
+.event-hero .meta-item svg{opacity:.7}
+.event-hero .badges{position:absolute;top:32px;right:32px;display:flex;gap:8px}
+.badge-earlybird{background:var(--amber-500);color:#fff;padding:6px 12px;border-radius:6px;font:600 11px var(--font-sans);letter-spacing:.08em;text-transform:uppercase}
+.badge-live{background:rgba(255,255,255,.15);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.2);color:#fff;padding:6px 12px;border-radius:6px;font:600 11px var(--font-sans);letter-spacing:.08em;text-transform:uppercase}
+
+/* ── tabs ── */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--silver-300);margin:28px 0 24px}
+.tab{padding:12px 20px;font:500 14px var(--font-sans);color:var(--silver-600);border-bottom:2px solid transparent;cursor:pointer;transition:color 150ms}
+.tab.active{color:var(--emerald-700);border-bottom-color:var(--emerald-700)}
+.tab:hover:not(.active){color:var(--ink)}
+.tab-content{display:none}.tab-content.active{display:block}
+
+/* ── about section ── */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
+.about-card{background:#fff;border:1px solid var(--silver-300);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:6px}
+.about-card .label{font:600 10px var(--font-sans);letter-spacing:.12em;text-transform:uppercase;color:var(--silver-600)}
+.about-card .value{font:600 16px var(--font-sans);color:var(--ink)}
+.about-card .sub{font:400 13px var(--font-sans);color:var(--silver-600)}
+.about-desc{font:400 15px/1.7 var(--font-sans);color:var(--silver-700);margin-bottom:24px}
+.about-desc p+p{margin-top:14px}
+
+/* ── ticket sidebar ── */
+.sidebar{position:sticky;top:88px}
+.ticket-card{background:#fff;border:1px solid var(--silver-300);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-md)}
+.ticket-card .tc-header{background:var(--emerald-900);color:#fff;padding:20px 24px;position:relative;overflow:hidden}
+.ticket-card .tc-header::before{content:"";position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,#fff 0 2px,transparent 2px 6px);opacity:.04}
+.ticket-card .tc-header .eyebrow{font:600 10px var(--font-sans);letter-spacing:.12em;text-transform:uppercase;color:var(--emerald-200);margin-bottom:6px;position:relative}
+.ticket-card .tc-header h3{font:600 20px var(--font-sans);letter-spacing:-.01em;position:relative}
+.ticket-card .tc-header .date-row{font:500 13px var(--font-mono);color:var(--emerald-200);margin-top:8px;position:relative}
+.ticket-card .tc-body{padding:20px 24px}
+
+/* early bird banner */
+.earlybird-banner{background:var(--amber-500);background:linear-gradient(135deg,#C77A1F,#8E5512);color:#fff;border-radius:10px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:12px}
+.earlybird-banner svg{flex-shrink:0}
+.earlybird-banner .eb-text .eb-title{font:600 13px var(--font-sans)}
+.earlybird-banner .eb-text .eb-sub{font:400 12px var(--font-sans);opacity:.85;margin-top:2px}
+
+/* ticket type rows */
+.ticket-section-label{font:600 11px var(--font-sans);letter-spacing:.1em;text-transform:uppercase;color:var(--silver-600);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--silver-200)}
+.ticket-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--silver-200)}
+.ticket-row:last-of-type{border-bottom:none}
+.ticket-row .tr-info .tr-name{font:600 15px var(--font-sans);color:var(--ink)}
+.ticket-row .tr-info .tr-price{display:flex;align-items:center;gap:8px;margin-top:3px}
+.ticket-row .tr-info .tr-price .original{font:400 12px var(--font-sans);color:var(--silver-400);text-decoration:line-through}
+.ticket-row .tr-info .tr-price .discounted{font:600 14px var(--font-sans);color:var(--emerald-700)}
+.ticket-row .tr-info .tr-price .saving{font:500 11px var(--font-sans);color:var(--amber-700);background:var(--amber-50,#FBF3E8);padding:2px 6px;border-radius:4px}
+.counter{display:flex;align-items:center;gap:10px}
+.counter button{width:32px;height:32px;border-radius:8px;border:1px solid var(--silver-300);background:#fff;font:600 18px var(--font-sans);color:var(--ink);display:grid;place-items:center;transition:background 150ms,border-color 150ms}
+.counter button:hover{background:var(--silver-100);border-color:var(--silver-400)}
+.counter .count{font:600 16px var(--font-sans);min-width:24px;text-align:center}
+
+/* VIP section */
+.vip-divider{margin:20px 0 16px;position:relative;text-align:center}
+.vip-divider::before{content:"";position:absolute;top:50%;left:0;right:0;height:1px;background:var(--silver-200)}
+.vip-divider span{position:relative;background:#fff;padding:0 12px;font:600 10px var(--font-sans);letter-spacing:.1em;text-transform:uppercase;color:var(--amber-700)}
+
+/* order summary */
+.order-summary{margin-top:20px;padding-top:20px;border-top:1px solid var(--silver-200)}
+.order-row{display:flex;justify-content:space-between;align-items:center;font:400 14px var(--font-sans);color:var(--silver-700);margin-bottom:8px}
+.order-row.total{font:600 16px var(--font-sans);color:var(--ink);margin-top:12px;padding-top:12px;border-top:1px solid var(--silver-300)}
+.order-row .savings-tag{font:600 12px var(--font-sans);color:var(--amber-700);background:#FBF3E8;padding:2px 8px;border-radius:4px}
+
+.checkout-btn{width:100%;margin-top:20px;height:52px;font-size:16px;border-radius:10px}
+.checkout-btn:disabled{background:var(--silver-300);cursor:not-allowed}
+
+.tc-footer{padding:16px 24px;background:var(--silver-50);border-top:1px solid var(--silver-200);display:flex;flex-direction:column;gap:8px}
+.tc-footer .trust-item{display:flex;align-items:center;gap:8px;font:400 12px var(--font-sans);color:var(--silver-600)}
+.tc-footer .trust-item svg{color:var(--emerald-500);flex-shrink:0}
+
+/* ── venue map placeholder ── */
+.venue-map{background:linear-gradient(135deg,var(--emerald-50),var(--silver-100));border:1px solid var(--silver-300);border-radius:12px;height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--silver-600);margin-bottom:24px}
+.venue-map svg{color:var(--emerald-700);opacity:.6}
+.venue-map p{font:500 14px var(--font-sans)}
+.venue-map small{font:400 12px var(--font-sans)}
+
+/* ── footer ── */
+footer{background:var(--emerald-900);color:#fff;padding:40px 0 24px}
+footer .inner{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:24px}
+footer .logo{font:700 20px var(--font-sans);color:#fff;letter-spacing:-.02em}
+footer p{color:var(--emerald-200);font-size:13px}
+footer .pay{display:flex;gap:10px;align-items:center}
+footer .pay-pill{background:rgba(255,255,255,.06);padding:4px 10px;border-radius:5px;font:600 10px var(--font-mono);letter-spacing:.08em;color:var(--emerald-200)}
+
+@media(max-width:900px){
+  .main{grid-template-columns:1fr}
+  .sidebar{position:static}
+  .about-grid{grid-template-columns:1fr}
+  .event-hero h1{font-size:36px}
+}
+</style>
+</head>
+<body>
+
+<div class="util">
+  <div class="inner">
+    <span class="pill"><span class="dot"></span>1 Event on sale · Karachi</span>
+    <span class="spacer"></span>
+    <a href="#">For organisers</a>
+    <a href="#">Help</a>
+    <a href="#">English · اردو</a>
+  </div>
+</div>
+
+<header class="header">
+  <div class="inner">
+    <a href="index.html" class="logo">my<span>tikit</span>.pk</a>
+    <nav class="nav">
+      <a href="#" class="active">Events</a>
+      <a href="#">Concerts</a>
+      <a href="#">Sports</a>
+      <a href="#">Theatre</a>
+    </nav>
+    <div class="header-right">
+      <button class="btn btn-secondary btn-sm">Sign in</button>
+      <button class="btn btn-primary btn-sm">My tickets</button>
+    </div>
+  </div>
+</header>
+
+<div class="breadcrumb">
+  <a href="index.html">Home</a>
+  <span class="sep">›</span>
+  <a href="#">Concerts</a>
+  <span class="sep">›</span>
+  <a href="#">Karachi</a>
+  <span class="sep">›</span>
+  <span class="current">Atif Aslam Live in Karachi</span>
+</div>
+
+<div class="main">
+  <div class="left-col">
+
+    <!-- Event Hero -->
+    <div class="event-hero">
+      <div class="badges">
+        <span class="badge-earlybird">⚡ Early Bird — 5% Off</span>
+        <span class="badge-live">On Sale Now</span>
+      </div>
+      <div class="event-hero-content">
+        <div class="eyebrow">Concert · Karachi · Thu 6 Nov 2025</div>
+        <h1>Atif Aslam<br>Live in Karachi</h1>
+        <div class="meta-row">
+          <div class="meta-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>
+            Thursday, 6 November 2025
+          </div>
+          <div class="meta-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            Doors open 7:00pm · Show 8:00pm
+          </div>
+          <div class="meta-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+            Beach View Park, Karachi
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('about')">About</div>
+      <div class="tab" onclick="switchTab('venue')">Venue & Map</div>
+      <div class="tab" onclick="switchTab('faq')">FAQ</div>
+    </div>
+
+    <!-- About Tab -->
+    <div class="tab-content active" id="tab-about">
+      <div class="about-grid">
+        <div class="about-card">
+          <div class="label">Date & Time</div>
+          <div class="value">Thu, 6 November 2025</div>
+          <div class="sub">Doors 7:00pm · Show 8:00pm</div>
+        </div>
+        <div class="about-card">
+          <div class="label">Venue</div>
+          <div class="value">Beach View Park</div>
+          <div class="sub">Clifton, Karachi</div>
+        </div>
+        <div class="about-card">
+          <div class="label">Category</div>
+          <div class="value">Live Concert</div>
+          <div class="sub">All ages welcome</div>
+        </div>
+        <div class="about-card">
+          <div class="label">Early Bird Ends</div>
+          <div class="value">31 October 2025</div>
+          <div class="sub">5% off all ticket types</div>
+        </div>
+      </div>
+      <div class="about-desc">
+        <p>Pakistan's most celebrated voice returns to Karachi for a night unlike any other. Atif Aslam takes the stage at Beach View Park — an open-air venue on the Clifton waterfront — for an evening of his greatest hits spanning two decades of music.</p>
+        <p>From Aadat to Dillagi, Woh Lamhe to Tajdar-e-Haram, this is the full concert experience — a live band, full production, and a crowd of thousands singing every word back.</p>
+        <p>Early bird tickets are available at a 5% discount until 31 October. Limited seats in all categories — VIP enclosure has a separate entrance and dedicated facilities.</p>
+      </div>
+    </div>
+
+    <!-- Venue Tab -->
+    <div class="tab-content" id="tab-venue">
+      <div class="venue-map">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        <p>Beach View Park, Clifton, Karachi</p>
+        <small>Open in Google Maps →</small>
+      </div>
+      <div class="about-grid">
+        <div class="about-card">
+          <div class="label">Nearest Landmark</div>
+          <div class="value">Clifton Beach</div>
+          <div class="sub">Sea View, Block 4 Clifton</div>
+        </div>
+        <div class="about-card">
+          <div class="label">Parking</div>
+          <div class="value">Available on site</div>
+          <div class="sub">Arrive early — fills up fast</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAQ Tab -->
+    <div class="tab-content" id="tab-faq">
+      <div style="display:flex;flex-direction:column;gap:0">
+        <details style="border-bottom:1px solid var(--silver-300);padding:20px 0">
+          <summary style="display:flex;justify-content:space-between;cursor:pointer;font:600 16px var(--font-sans)">Can I transfer my ticket to someone else? <span>+</span></summary>
+          <p style="margin-top:12px;font:400 14px/1.7 var(--font-sans);color:var(--silver-700)">Yes — you can transfer your ticket to a different CNIC up to 6 hours before doors open.</p>
+        </details>
+        <details style="border-bottom:1px solid var(--silver-300);padding:20px 0">
+          <summary style="display:flex;justify-content:space-between;cursor:pointer;font:600 16px var(--font-sans)">What is the refund policy? <span>+</span></summary>
+          <p style="margin-top:12px;font:400 14px/1.7 var(--font-sans);color:var(--silver-700)">Full refund if you cancel 48 hours before doors. After that, tickets are non-refundable but transferable.</p>
+        </details>
+        <details style="border-bottom:1px solid var(--silver-300);padding:20px 0">
+          <summary style="display:flex;justify-content:space-between;cursor:pointer;font:600 16px var(--font-sans)">How do I receive my ticket? <span>+</span></summary>
+          <p style="margin-top:12px;font:400 14px/1.7 var(--font-sans);color:var(--silver-700)">Your e-ticket is sent to your WhatsApp and email within 30 seconds of payment. It also appears under "My Tickets" in the app.</p>
+        </details>
+        <details style="padding:20px 0">
+          <summary style="display:flex;justify-content:space-between;cursor:pointer;font:600 16px var(--font-sans)">What is the VIP enclosure? <span>+</span></summary>
+          <p style="margin-top:12px;font:400 14px/1.7 var(--font-sans);color:var(--silver-700)">The VIP enclosure is a separate section closer to the stage with dedicated entry, seating, and facilities.</p>
+        </details>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="ticket-card">
+      <div class="tc-header">
+        <div class="eyebrow">Select tickets</div>
+        <h3>Atif Aslam Live in Karachi</h3>
+        <div class="date-row">THU · 6 NOV 2025 · BEACH VIEW PARK</div>
+      </div>
+      <div class="tc-body">
+
+        <div class="earlybird-banner">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          <div class="eb-text">
+            <div class="eb-title">Early Bird — 5% off all tickets</div>
+            <div class="eb-sub">Offer ends 31 October 2025</div>
+          </div>
+        </div>
+
+        <div class="ticket-section-label">General Admission</div>
+
+        <div class="ticket-row">
+          <div class="tr-info">
+            <div class="tr-name">Individual</div>
+            <div class="tr-price">
+              <span class="original">Rs. 5,000</span>
+              <span class="discounted">Rs. 4,750</span>
+              <span class="saving">Save Rs. 250</span>
+            </div>
+          </div>
+          <div class="counter">
+            <button onclick="updateCount('ga-single',-1)">−</button>
+            <span class="count" id="ga-single">0</span>
+            <button onclick="updateCount('ga-single',1)">+</button>
+          </div>
+        </div>
+
+        <div class="ticket-row">
+          <div class="tr-info">
+            <div class="tr-name">Couple</div>
+            <div class="tr-price">
+              <span class="original">Rs. 9,000</span>
+              <span class="discounted">Rs. 8,550</span>
+              <span class="saving">Save Rs. 450</span>
+            </div>
+          </div>
+          <div class="counter">
+            <button onclick="updateCount('ga-couple',-1)">−</button>
+            <span class="count" id="ga-couple">0</span>
+            <button onclick="updateCount('ga-couple',1)">+</button>
+          </div>
+        </div>
+
+        <div class="vip-divider"><span>⭐ VIP Enclosure</span></div>
+
+        <div class="ticket-section-label">VIP — Closer to stage · Dedicated entry</div>
+
+        <div class="ticket-row">
+          <div class="tr-info">
+            <div class="tr-name">VIP Individual</div>
+            <div class="tr-price">
+              <span class="original">Rs. 7,000</span>
+              <span class="discounted">Rs. 6,650</span>
+              <span class="saving">Save Rs. 350</span>
+            </div>
+          </div>
+          <div class="counter">
+            <button onclick="updateCount('vip-single',-1)">−</button>
+            <span class="count" id="vip-single">0</span>
+            <button onclick="updateCount('vip-single',1)">+</button>
+          </div>
+        </div>
+
+        <div class="ticket-row">
+          <div class="tr-info">
+            <div class="tr-name">VIP Couple</div>
+            <div class="tr-price">
+              <span class="original">Rs. 12,000</span>
+              <span class="discounted">Rs. 11,400</span>
+              <span class="saving">Save Rs. 600</span>
+            </div>
+          </div>
+          <div class="counter">
+            <button onclick="updateCount('vip-couple',-1)">−</button>
+            <span class="count" id="vip-couple">0</span>
+            <button onclick="updateCount('vip-couple',1)">+</button>
+          </div>
+        </div>
+
+        <div class="order-summary" id="order-summary" style="display:none">
+          <div class="order-row" id="summary-items"></div>
+          <div class="order-row">
+            <span>Service fee (2.5%)</span>
+            <span id="summary-fee">Rs. 0</span>
+          </div>
+          <div class="order-row total">
+            <span>Total</span>
+            <span id="summary-total">Rs. 0</span>
+          </div>
+          <div class="order-row" style="margin-top:6px">
+            <span style="color:var(--amber-700);font-size:13px">🎉 Early bird saving</span>
+            <span class="savings-tag" id="summary-saving">Rs. 0 saved</span>
+          </div>
+        </div>
+
+        <button class="btn btn-primary checkout-btn" id="checkout-btn" disabled onclick="goToCart()">
+          Select tickets to continue
+        </button>
+
+      </div>
+      <div class="tc-footer">
+        <div class="trust-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6l-8-4z"/><path d="M9 12l2 2 4-4"/></svg>
+          Secure checkout · CNIC-linked tickets
+        </div>
+        <div class="trust-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          Free cancellation up to 48hrs before
+        </div>
+        <div class="trust-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/><path d="M9 7v2M9 11v2M9 15v2"/></svg>
+          E-ticket on WhatsApp in 30 seconds
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="inner">
+    <div>
+      <div class="logo">mytikit.pk</div>
+      <p style="margin-top:6px">Pakistan's clean way to find a ticket.</p>
+    </div>
+    <div class="pay">
+      <span style="opacity:.6;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:600">Accepted</span>
+      <span class="pay-pill">JAZZCASH</span>
+      <span class="pay-pill">EASYPAISA</span>
+      <span class="pay-pill">BANK TRANSFER</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+const prices = {
+  'ga-single':  { original: 5000, discounted: 4750 },
+  'ga-couple':  { original: 9000, discounted: 8550 },
+  'vip-single': { original: 7000, discounted: 6650 },
+  'vip-couple': { original:12000, discounted:11400 }
+};
+const labels = {
+  'ga-single':'Individual','ga-couple':'Couple',
+  'vip-single':'VIP Individual','vip-couple':'VIP Couple'
+};
+const counts = {'ga-single':0,'ga-couple':0,'vip-single':0,'vip-couple':0};
+
+function updateCount(type, delta) {
+  counts[type] = Math.max(0, counts[type] + delta);
+  document.getElementById(type).textContent = counts[type];
+  updateSummary();
+}
+
+function updateSummary() {
+  let subtotal = 0, saving = 0, itemsHtml = '';
+  let totalTickets = 0;
+  for (const [key, qty] of Object.entries(counts)) {
+    if (qty > 0) {
+      const p = prices[key];
+      subtotal += p.discounted * qty;
+      saving += (p.original - p.discounted) * qty;
+      totalTickets += qty;
+      itemsHtml += `<span>${labels[key]} ×${qty}</span><span>Rs. ${(p.discounted*qty).toLocaleString()}</span>`;
+    }
+  }
+  const fee = Math.round(subtotal * 0.025);
+  const total = subtotal + fee;
+  const summary = document.getElementById('order-summary');
+  const btn = document.getElementById('checkout-btn');
+  if (totalTickets > 0) {
+    summary.style.display = 'block';
+    document.getElementById('summary-items').innerHTML = itemsHtml;
+    document.getElementById('summary-fee').textContent = 'Rs. ' + fee.toLocaleString();
+    document.getElementById('summary-total').textContent = 'Rs. ' + total.toLocaleString();
+    document.getElementById('summary-saving').textContent = 'Rs. ' + saving.toLocaleString() + ' saved';
+    btn.disabled = false;
+    btn.textContent = 'Proceed to checkout →';
+    // store for cart page
+    localStorage.setItem('mtk_order', JSON.stringify({counts, subtotal, fee, total, saving}));
+  } else {
+    summary.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Select tickets to continue';
+  }
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    const names = ['about','venue','faq'];
+    t.classList.toggle('active', names[i] === name);
+  });
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+function goToCart() {
+  window.location.href = 'cart.html';
+}
+</script>
+</body>
+</html>
