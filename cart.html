@@ -1,288 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Your Order — mytikit.pk</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout — mytikit.pk</title>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --emerald-50:#E8F0EC;--emerald-200:#95BFA9;--emerald-500:#207A52;
-  --emerald-700:#0F5132;--emerald-900:#06291A;
-  --silver-50:#FAFBFA;--silver-100:#F4F6F5;--silver-200:#E8ECEA;
-  --silver-300:#D6DBD8;--silver-400:#B3BBB7;--silver-600:#7A8580;
-  --silver-700:#4D5651;--ink:#0A1311;
-  --amber-500:#C77A1F;--amber-700:#8E5512;
-  --font-sans:'Geist',ui-sans-serif,system-ui,-apple-system,sans-serif;
-  --font-mono:'Geist Mono',ui-monospace,monospace;
-  --shadow-sm:0 1px 2px rgba(6,41,26,.06);
-  --shadow-md:0 8px 24px -8px rgba(6,41,26,.12),0 2px 4px rgba(6,41,26,.04);
-}
-html,body{background:var(--silver-100);color:var(--ink);font-family:var(--font-sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
-a{color:inherit;text-decoration:none}
-button{font-family:inherit;cursor:pointer}
-
-.util{background:var(--emerald-900);color:#95BFA9;font:500 12px var(--font-sans)}
-.util .inner{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;align-items:center;height:32px;gap:18px}
-.util .spacer{flex:1}
-
-.header{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--silver-300)}
-.header .inner{max-width:1200px;margin:0 auto;padding:0 24px;height:72px;display:flex;align-items:center;gap:24px}
-.logo{font:700 22px var(--font-sans);color:var(--emerald-900);letter-spacing:-.02em}
-.logo span{color:var(--emerald-500)}
-
-/* steps */
-.steps{max-width:600px;margin:32px auto 0;padding:0 24px}
-.step-row{display:flex;align-items:center;gap:0;margin-bottom:32px}
-.step-item{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1}
-.step-circle{width:36px;height:36px;border-radius:99px;display:grid;place-items:center;font:600 14px var(--font-sans)}
-.step-circle.done{background:var(--emerald-700);color:#fff}
-.step-circle.active{background:var(--emerald-700);color:#fff;box-shadow:0 0 0 4px var(--emerald-50)}
-.step-circle.pending{background:#fff;color:var(--silver-400);border:2px solid var(--silver-300)}
-.step-label{font:500 11px var(--font-sans);letter-spacing:.06em;text-transform:uppercase;color:var(--silver-600)}
-.step-label.active{color:var(--emerald-700)}
-.step-line{flex:1;height:2px;background:var(--silver-300);margin-bottom:18px}
-.step-line.done{background:var(--emerald-700)}
-
-/* main */
-.main{max-width:900px;margin:0 auto;padding:0 24px 80px;display:grid;grid-template-columns:1fr 340px;gap:32px;align-items:start}
-
-.section-card{background:#fff;border:1px solid var(--silver-300);border-radius:14px;overflow:hidden;margin-bottom:20px;box-shadow:var(--shadow-sm)}
-.sc-header{padding:20px 24px;border-bottom:1px solid var(--silver-200);display:flex;align-items:center;justify-content:space-between}
-.sc-header h3{font:600 17px var(--font-sans);color:var(--ink)}
-.sc-header a{font:500 13px var(--font-sans);color:var(--emerald-700)}
-.sc-body{padding:20px 24px}
-
-/* order items */
-.order-item{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--silver-200)}
-.order-item:last-child{border-bottom:none}
-.oi-left .oi-name{font:600 15px var(--font-sans);color:var(--ink)}
-.oi-left .oi-meta{font:400 13px var(--font-sans);color:var(--silver-600);margin-top:3px}
-.oi-left .oi-badge{display:inline-block;background:#FBF3E8;color:var(--amber-700);font:600 10px var(--font-sans);padding:2px 6px;border-radius:4px;letter-spacing:.04em;margin-top:4px}
-.oi-right{text-align:right}
-.oi-right .oi-price{font:600 15px var(--font-sans);color:var(--ink)}
-.oi-right .oi-original{font:400 12px var(--font-sans);color:var(--silver-400);text-decoration:line-through}
-
-/* attendee form */
-.form-group{margin-bottom:18px}
-.form-group label{display:block;font:600 12px var(--font-sans);letter-spacing:.06em;text-transform:uppercase;color:var(--silver-600);margin-bottom:8px}
-.form-group input{width:100%;height:44px;padding:0 14px;border:1px solid var(--silver-300);border-radius:8px;font:400 15px var(--font-sans);color:var(--ink);background:#fff;transition:border-color 150ms,box-shadow 150ms}
-.form-group input:focus{outline:none;border-color:var(--emerald-500);box-shadow:0 0 0 3px rgba(15,81,50,.1)}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.form-note{font:400 12px var(--font-sans);color:var(--silver-600);margin-top:6px}
-
-/* summary sidebar */
-.summary-card{background:#fff;border:1px solid var(--silver-300);border-radius:14px;overflow:hidden;position:sticky;top:88px;box-shadow:var(--shadow-md)}
-.summary-card .sc-top{background:var(--emerald-900);color:#fff;padding:20px 24px;position:relative;overflow:hidden}
-.summary-card .sc-top::before{content:"";position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,#fff 0 2px,transparent 2px 6px);opacity:.04}
-.summary-card .sc-top .eyebrow{font:600 10px var(--font-sans);letter-spacing:.12em;text-transform:uppercase;color:#95BFA9;margin-bottom:4px;position:relative}
-.summary-card .sc-top h4{font:600 18px var(--font-sans);position:relative}
-.summary-card .sc-top .date{font:500 12px var(--font-mono);color:#95BFA9;margin-top:6px;position:relative}
-.summary-card .sc-mid{padding:20px 24px}
-.sum-row{display:flex;justify-content:space-between;font:400 14px var(--font-sans);color:var(--silver-700);margin-bottom:10px}
-.sum-row.total{font:600 16px var(--font-sans);color:var(--ink);padding-top:12px;margin-top:4px;border-top:1px solid var(--silver-300)}
-.sum-row.saving{color:var(--amber-700)}
-.summary-card .sc-footer{padding:16px 24px;border-top:1px solid var(--silver-200)}
-
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;border-radius:8px;font:500 15px var(--font-sans);border:1px solid transparent;transition:background 150ms,transform 150ms}
-.btn:active{transform:scale(.98)}
-.btn-primary{background:var(--emerald-700);color:#fff;width:100%}
-.btn-primary:hover{background:#0B3D26}
-.btn-lg{height:52px;font-size:16px;border-radius:10px}
-.btn-ghost{background:transparent;color:var(--emerald-700);border:none;font:500 14px var(--font-sans);padding:0;height:auto}
-.btn-ghost:hover{text-decoration:underline}
-
-.trust-row{display:flex;flex-direction:column;gap:8px;margin-top:16px}
-.trust-item{display:flex;align-items:center;gap:8px;font:400 12px var(--font-sans);color:var(--silver-600)}
-.trust-item svg{color:var(--emerald-500);flex-shrink:0}
-
-@media(max-width:760px){
-  .main{grid-template-columns:1fr}
-  .summary-card{position:static}
-  .form-row{grid-template-columns:1fr}
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f9f7; color: #111; min-height: 100vh; }
+.util-bar { background: #06291A; color: #a8c4b0; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; height: 36px; font-size: 12px; }
+.util-dot { width: 7px; height: 7px; background: #4ade80; border-radius: 50%; display: inline-block; margin-right: 6px; }
+nav { background: #fff; border-bottom: 1px solid #e8e8e8; display: flex; align-items: center; padding: 0 40px; height: 64px; position: sticky; top: 0; z-index: 100; }
+.nav-logo { display: flex; align-items: center; gap: 6px; text-decoration: none; margin-right: 24px; }
+.nav-logo-text { font-size: 18px; font-weight: 700; color: #111; }
+.nav-logo-tld { color: #888; font-weight: 400; }
+.nav-back { color: #555; font-size: 14px; text-decoration: none; flex: 1; }
+.nav-back:hover { color: #06291A; }
+.btn-mytickets { background: #06291A; color: #fff; font-size: 14px; font-weight: 600; padding: 9px 18px; border-radius: 8px; text-decoration: none; margin-left: auto; }
+.steps-bar { background: #fff; border-bottom: 1px solid #e8e8e8; padding: 0 40px; display: flex; }
+.step { display: flex; align-items: center; gap: 8px; padding: 14px 20px; font-size: 13px; color: #bbb; border-bottom: 2px solid transparent; }
+.step.active { color: #06291A; border-bottom-color: #06291A; font-weight: 600; }
+.step.done { color: #888; }
+.step-num { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid currentColor; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+.step.active .step-num { background: #06291A; color: #fff; }
+.page-wrap { max-width: 960px; margin: 0 auto; padding: 40px; display: grid; grid-template-columns: 1fr 340px; gap: 28px; align-items: start; }
+.form-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 14px; padding: 28px; }
+.form-card-title { font-size: 18px; font-weight: 800; margin-bottom: 24px; }
+.form-group { margin-bottom: 18px; }
+label { display: block; font-size: 12px; font-weight: 700; color: #888; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px; }
+input { width: 100%; border: 1.5px solid #e0e0e0; border-radius: 8px; padding: 11px 14px; font-size: 15px; font-family: inherit; outline: none; background: #fff; }
+input:focus { border-color: #06291A; }
+input.err { border-color: #e53e3e; }
+.err-msg { font-size: 12px; color: #e53e3e; margin-top: 4px; display: none; }
+.err-msg.show { display: block; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.btn-submit { display: block; width: 100%; background: #06291A; color: #fff; font-size: 16px; font-weight: 700; padding: 15px; border-radius: 9px; border: none; cursor: pointer; font-family: inherit; margin-top: 8px; }
+.btn-submit:hover { background: #0a3d26; }
+.secure-note { text-align: center; font-size: 12px; color: #aaa; margin-top: 10px; }
+.order-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 14px; padding: 24px; position: sticky; top: 80px; }
+.order-card-title { font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; }
+.order-event-name { font-size: 16px; font-weight: 800; margin-bottom: 3px; }
+.order-event-meta { font-size: 13px; color: #888; padding-bottom: 14px; border-bottom: 1px solid #e8e8e8; margin-bottom: 14px; }
+.order-line { display: flex; justify-content: space-between; font-size: 14px; color: #555; margin-bottom: 7px; }
+.order-divider { border: none; border-top: 1px solid #e8e8e8; margin: 10px 0; }
+.order-total { display: flex; justify-content: space-between; font-size: 17px; font-weight: 800; }
+.order-total span:last-child { color: #06291A; }
+footer { background: #06291A; color: #6b9e80; padding: 28px 40px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-top: 48px; }
+.footer-logo { font-size: 16px; font-weight: 700; color: #fff; }
+.footer-copy { color: #4a7a5a; font-size: 12px; width: 100%; }
+@media (max-width: 768px) { .page-wrap { grid-template-columns: 1fr; padding: 24px 20px; } nav, .util-bar, .steps-bar { padding-left: 20px; padding-right: 20px; } .form-row { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
-
-<div class="util">
-  <div class="inner">
-    <span>mytikit.pk</span>
-    <span class="spacer"></span>
-    <span>Need help? WhatsApp us</span>
+<div class="util-bar"><span><span class="util-dot"></span>2 Events on sale · Karachi</span></div>
+<nav>
+  <a href="index.html" class="nav-logo"><svg width="26" height="20" viewBox="0 0 28 22" fill="none"><rect x="0" y="4" width="4" height="14" rx="2" fill="#06291A"/><rect x="6" y="0" width="4" height="22" rx="2" fill="#06291A"/><rect x="12" y="6" width="4" height="10" rx="2" fill="#06291A"/><rect x="18" y="2" width="4" height="18" rx="2" fill="#06291A"/><rect x="24" y="7" width="4" height="8" rx="2" fill="#06291A"/></svg><span class="nav-logo-text">mytikit<span class="nav-logo-tld">.pk</span></span></a>
+  <a href="javascript:history.back()" class="nav-back">← Back</a>
+  <a href="#" class="btn-mytickets">My tickets</a>
+</nav>
+<div class="steps-bar">
+  <div class="step done"><span class="step-num">✓</span> Tickets</div>
+  <div class="step active"><span class="step-num">2</span> Your details</div>
+  <div class="step"><span class="step-num">3</span> Payment</div>
+  <div class="step"><span class="step-num">4</span> Confirmed</div>
+</div>
+<div class="page-wrap">
+  <div class="form-card">
+    <div class="form-card-title">Your details</div>
+    <div class="form-row">
+      <div class="form-group"><label>First name</label><input type="text" id="fname" placeholder="Ali"><div class="err-msg" id="err-fname">Required</div></div>
+      <div class="form-group"><label>Last name</label><input type="text" id="lname" placeholder="Khan"><div class="err-msg" id="err-lname">Required</div></div>
+    </div>
+    <div class="form-group"><label>Phone number</label><input type="tel" id="phone" placeholder="03xx-xxxxxxx"><div class="err-msg" id="err-phone">Enter a valid Pakistani number</div></div>
+    <div class="form-group"><label>Email address</label><input type="text" id="email" placeholder="ali@example.com"><div class="err-msg" id="err-email">Enter a valid email</div></div>
+    <div class="form-group"><label>CNIC number</label><input type="text" id="cnic" placeholder="xxxxx-xxxxxxx-x" maxlength="15"><div class="err-msg" id="err-cnic">Enter valid CNIC (e.g. 42101-1234567-1)</div></div>
+    <button class="btn-submit" onclick="submitForm()">Continue to payment →</button>
+    <div class="secure-note">🔒 Your information is encrypted and secure</div>
+  </div>
+  <div class="order-card">
+    <div class="order-card-title">Order summary</div>
+    <div class="order-event-name" id="s-name">Loading...</div>
+    <div class="order-event-meta" id="s-meta"></div>
+    <div id="s-lines"></div>
+    <hr class="order-divider">
+    <div class="order-line"><span>Service fee (2.5%)</span><span id="s-fee">—</span></div>
+    <hr class="order-divider">
+    <div class="order-total"><span>Total</span><span id="s-total">—</span></div>
   </div>
 </div>
-
-<header class="header">
-  <div class="inner">
-    <a href="index.html" class="logo">my<span>tikit</span>.pk</a>
-  </div>
-</header>
-
-<!-- Steps -->
-<div class="steps">
-  <div class="step-row">
-    <div class="step-item">
-      <div class="step-circle done">✓</div>
-      <div class="step-label">Tickets</div>
-    </div>
-    <div class="step-line done"></div>
-    <div class="step-item">
-      <div class="step-circle active">2</div>
-      <div class="step-label active">Your details</div>
-    </div>
-    <div class="step-line"></div>
-    <div class="step-item">
-      <div class="step-circle pending">3</div>
-      <div class="step-label">Payment</div>
-    </div>
-    <div class="step-line"></div>
-    <div class="step-item">
-      <div class="step-circle pending">4</div>
-      <div class="step-label">Confirm</div>
-    </div>
-  </div>
-</div>
-
-<div class="main">
-  <div class="left">
-
-    <!-- Order items -->
-    <div class="section-card">
-      <div class="sc-header">
-        <h3>Your order</h3>
-        <a href="event.html">← Edit tickets</a>
-      </div>
-      <div class="sc-body" id="order-items">
-        <!-- filled by JS -->
-        <p style="color:var(--silver-600);font-size:14px">Loading your order...</p>
-      </div>
-    </div>
-
-    <!-- Attendee details -->
-    <div class="section-card">
-      <div class="sc-header">
-        <h3>Your details</h3>
-      </div>
-      <div class="sc-body">
-        <div class="form-row">
-          <div class="form-group">
-            <label>First name</label>
-            <input type="text" id="fname" placeholder="Ahmed">
-          </div>
-          <div class="form-group">
-            <label>Last name</label>
-            <input type="text" id="lname" placeholder="Khan">
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Mobile number</label>
-          <input type="tel" id="phone" placeholder="03XX-XXXXXXX">
-          <div class="form-note">Your e-ticket will be sent here on WhatsApp</div>
-        </div>
-        <div class="form-group">
-          <label>Email address</label>
-          <input type="email" id="email" placeholder="ahmed@email.com">
-          <div class="form-note">Backup copy of your ticket</div>
-        </div>
-        <div class="form-group">
-          <label>CNIC number</label>
-          <input type="text" id="cnic" placeholder="XXXXX-XXXXXXX-X">
-          <div class="form-note">Ticket is linked to this CNIC — prevents scalping. Can be transferred up to 6hrs before doors.</div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Summary sidebar -->
-  <div class="summary-card">
-    <div class="sc-top">
-      <div class="eyebrow">Concert · Karachi</div>
-      <h4>Atif Aslam Live in Karachi</h4>
-      <div class="date">THU · 6 NOV 2025 · BEACH VIEW PARK</div>
-    </div>
-    <div class="sc-mid" id="summary-sidebar">
-      <p style="font-size:14px;color:var(--silver-600)">Loading summary...</p>
-    </div>
-    <div class="sc-footer">
-      <button class="btn btn-primary btn-lg" onclick="goToPayment()">
-        Continue to payment →
-      </button>
-      <div class="trust-row">
-        <div class="trust-item">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6l-8-4z"/><path d="M9 12l2 2 4-4"/></svg>
-          SSL secured · Your data is safe
-        </div>
-        <div class="trust-item">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-          Free cancellation up to 48hrs before
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
+<footer><div class="footer-logo">mytikit.pk</div><div class="footer-copy">© 2025 mytikit · Made in Karachi 🇵🇰</div></footer>
 <script>
-const prices = {
-  'ga-single':  { label:'Individual (GA)',      original:5000,  discounted:4750  },
-  'ga-couple':  { label:'Couple (GA)',           original:9000,  discounted:8550  },
-  'vip-single': { label:'VIP Individual',        original:7000,  discounted:6650  },
-  'vip-couple': { label:'VIP Couple',            original:12000, discounted:11400 }
-};
-
-function loadOrder() {
-  const raw = localStorage.getItem('mtk_order');
-  const itemsEl = document.getElementById('order-items');
-  const summaryEl = document.getElementById('summary-sidebar');
-
-  // demo fallback if no localStorage
-  const order = raw ? JSON.parse(raw) : {
-    counts:{'ga-single':1,'ga-couple':0,'vip-single':0,'vip-couple':0},
-    subtotal:4750, fee:119, total:4869, saving:250
-  };
-
-  let itemsHtml = '';
-  for (const [key, qty] of Object.entries(order.counts)) {
-    if (qty > 0) {
-      const p = prices[key];
-      itemsHtml += `
-        <div class="order-item">
-          <div class="oi-left">
-            <div class="oi-name">${p.label} ×${qty}</div>
-            <div class="oi-meta">Atif Aslam Live · Beach View Park · 6 Nov</div>
-            <div class="oi-badge">⚡ Early Bird 5% off</div>
-          </div>
-          <div class="oi-right">
-            <div class="oi-original">Rs. ${(p.original*qty).toLocaleString()}</div>
-            <div class="oi-price">Rs. ${(p.discounted*qty).toLocaleString()}</div>
-          </div>
-        </div>`;
-    }
-  }
-  itemsEl.innerHTML = itemsHtml || '<p style="color:var(--silver-600);font-size:14px">No tickets selected. <a href="event.html" style="color:var(--emerald-700)">Go back</a></p>';
-
-  summaryEl.innerHTML = `
-    <div class="sum-row"><span>Subtotal</span><span>Rs. ${order.subtotal.toLocaleString()}</span></div>
-    <div class="sum-row"><span>Service fee (2.5%)</span><span>Rs. ${order.fee.toLocaleString()}</span></div>
-    <div class="sum-row total"><span>Total</span><span>Rs. ${order.total.toLocaleString()}</span></div>
-    <div class="sum-row saving" style="margin-top:8px;font-size:13px"><span>🎉 Early bird saving</span><span style="font-weight:600">−Rs. ${order.saving.toLocaleString()}</span></div>`;
+const params = new URLSearchParams(window.location.search);
+const evtId = params.get('event');
+const total = parseInt(params.get('total')||0);
+const fee = parseInt(params.get('fee')||0);
+const evtNames = {atif:'Atif Aslam Live in Karachi',junaid:'Junaid Akram: Half Time'};
+const evtMeta = {atif:'Sat 14 Jun 2025 · National Stadium · 8:00 PM',junaid:'Fri 20 Jun 2025 · NAPA Complex · 9:00 PM'};
+const tPrices = {atif:{silver:2500,gold:5000,vip:10000},junaid:{standard:1500,premium:3000}};
+document.getElementById('s-name').textContent = evtNames[evtId]||'Event';
+document.getElementById('s-meta').textContent = evtMeta[evtId]||'';
+const ep = tPrices[evtId]||{};
+const linesEl = document.getElementById('s-lines');
+Object.keys(ep).forEach(t => {
+  const q = parseInt(params.get(t)||0);
+  if(q>0){const d=document.createElement('div');d.className='order-line';d.innerHTML=`<span>${q}× ${t[0].toUpperCase()+t.slice(1)}</span><span>Rs. ${(q*ep[t]).toLocaleString()}</span>`;linesEl.appendChild(d);}
+});
+document.getElementById('s-fee').textContent = 'Rs. '+fee.toLocaleString();
+document.getElementById('s-total').textContent = 'Rs. '+total.toLocaleString();
+function validate(id, fn, errId) {
+  const el=document.getElementById(id); const ok=fn(el.value.trim());
+  el.classList.toggle('err',!ok); document.getElementById(errId).classList.toggle('show',!ok); return ok;
 }
-
-function goToPayment() {
-  const fname = document.getElementById('fname').value;
-  const phone = document.getElementById('phone').value;
-  const email = document.getElementById('email').value;
-  const cnic  = document.getElementById('cnic').value;
-  if (!fname || !phone || !email || !cnic) {
-    alert('Please fill in all your details before continuing.');
-    return;
+function submitForm() {
+  const v1=validate('fname',v=>v.length>1,'err-fname');
+  const v2=validate('lname',v=>v.length>1,'err-lname');
+  const v3=validate('phone',v=>/^03\d{2}[-\s]?\d{7}$/.test(v),'err-phone');
+  const v4=validate('email',v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),'err-email');
+  const v5=validate('cnic',v=>/^\d{5}-\d{7}-\d$/.test(v),'err-cnic');
+  if(v1&&v2&&v3&&v4&&v5){
+    const p=new URLSearchParams(params);
+    p.set('fname',document.getElementById('fname').value.trim());
+    p.set('lname',document.getElementById('lname').value.trim());
+    p.set('phone',document.getElementById('phone').value.trim());
+    p.set('email',document.getElementById('email').value.trim());
+    window.location.href='payment.html?'+p.toString();
   }
-  localStorage.setItem('mtk_attendee', JSON.stringify({fname, phone, email, cnic}));
-  window.location.href = 'payment.html';
 }
-
-loadOrder();
+document.getElementById('cnic').addEventListener('input',function(){
+  let v=this.value.replace(/\D/g,'');
+  if(v.length>5) v=v.slice(0,5)+'-'+v.slice(5);
+  if(v.length>13) v=v.slice(0,13)+'-'+v.slice(13);
+  this.value=v.slice(0,15);
+});
 </script>
 </body>
 </html>

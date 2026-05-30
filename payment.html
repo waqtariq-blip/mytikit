@@ -1,318 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Payment — mytikit.pk</title>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --emerald-50:#E8F0EC;--emerald-200:#95BFA9;--emerald-500:#207A52;
-  --emerald-700:#0F5132;--emerald-900:#06291A;
-  --silver-50:#FAFBFA;--silver-100:#F4F6F5;--silver-200:#E8ECEA;
-  --silver-300:#D6DBD8;--silver-400:#B3BBB7;--silver-600:#7A8580;
-  --silver-700:#4D5651;--ink:#0A1311;
-  --amber-500:#C77A1F;--amber-700:#8E5512;
-  --font-sans:'Geist',ui-sans-serif,system-ui,-apple-system,sans-serif;
-  --font-mono:'Geist Mono',ui-monospace,monospace;
-  --shadow-sm:0 1px 2px rgba(6,41,26,.06);
-  --shadow-md:0 8px 24px -8px rgba(6,41,26,.12),0 2px 4px rgba(6,41,26,.04);
-}
-html,body{background:var(--silver-100);color:var(--ink);font-family:var(--font-sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
-a{color:inherit;text-decoration:none}
-button{font-family:inherit;cursor:pointer}
-
-.util{background:var(--emerald-900);color:#95BFA9;font:500 12px var(--font-sans)}
-.util .inner{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;align-items:center;height:32px;gap:18px}
-.util .spacer{flex:1}
-
-.header{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--silver-300)}
-.header .inner{max-width:1200px;margin:0 auto;padding:0 24px;height:72px;display:flex;align-items:center;gap:24px}
-.logo{font:700 22px var(--font-sans);color:var(--emerald-900);letter-spacing:-.02em}
-.logo span{color:var(--emerald-500)}
-
-.steps{max-width:600px;margin:32px auto 0;padding:0 24px}
-.step-row{display:flex;align-items:center;gap:0;margin-bottom:32px}
-.step-item{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1}
-.step-circle{width:36px;height:36px;border-radius:99px;display:grid;place-items:center;font:600 14px var(--font-sans)}
-.step-circle.done{background:var(--emerald-700);color:#fff}
-.step-circle.active{background:var(--emerald-700);color:#fff;box-shadow:0 0 0 4px var(--emerald-50)}
-.step-circle.pending{background:#fff;color:var(--silver-400);border:2px solid var(--silver-300)}
-.step-label{font:500 11px var(--font-sans);letter-spacing:.06em;text-transform:uppercase;color:var(--silver-600)}
-.step-label.active{color:var(--emerald-700)}
-.step-line{flex:1;height:2px;background:var(--silver-300);margin-bottom:18px}
-.step-line.done{background:var(--emerald-700)}
-
-.main{max-width:900px;margin:0 auto;padding:0 24px 80px;display:grid;grid-template-columns:1fr 340px;gap:32px;align-items:start}
-
-.section-card{background:#fff;border:1px solid var(--silver-300);border-radius:14px;overflow:hidden;margin-bottom:20px;box-shadow:var(--shadow-sm)}
-.sc-header{padding:20px 24px;border-bottom:1px solid var(--silver-200)}
-.sc-header h3{font:600 17px var(--font-sans);color:var(--ink)}
-.sc-header p{font:400 13px var(--font-sans);color:var(--silver-600);margin-top:4px}
-.sc-body{padding:24px}
-
-/* bank transfer card */
-.bank-card{background:linear-gradient(135deg,var(--emerald-900),#0B3D26);border-radius:14px;padding:28px;color:#fff;position:relative;overflow:hidden;margin-bottom:24px}
-.bank-card::before{content:"";position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,#fff 0 2px,transparent 2px 6px,#fff 6px 7px,transparent 7px 13px);opacity:.04}
-.bank-card .bc-label{font:600 10px var(--font-sans);letter-spacing:.12em;text-transform:uppercase;color:var(--emerald-200);margin-bottom:4px;position:relative}
-.bank-card .bc-bank{font:700 22px var(--font-sans);letter-spacing:-.01em;position:relative;margin-bottom:20px}
-.bank-card .bc-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;position:relative}
-.bank-card .bc-item .bc-item-label{font:600 10px var(--font-sans);letter-spacing:.1em;text-transform:uppercase;color:var(--emerald-200);margin-bottom:4px}
-.bank-card .bc-item .bc-item-value{font:600 16px var(--font-mono);letter-spacing:.04em}
-.bank-card .copy-btn{position:absolute;top:28px;right:28px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);color:#fff;padding:6px 12px;border-radius:6px;font:600 11px var(--font-sans);letter-spacing:.04em;cursor:pointer;transition:background 150ms}
-.bank-card .copy-btn:hover{background:rgba(255,255,255,.25)}
-
-/* amount to pay */
-.amount-box{background:var(--emerald-50);border:2px solid var(--emerald-200);border-radius:12px;padding:20px 24px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center}
-.amount-box .ab-label{font:600 12px var(--font-sans);letter-spacing:.06em;text-transform:uppercase;color:var(--emerald-700);margin-bottom:6px}
-.amount-box .ab-amount{font:700 32px var(--font-sans);color:var(--emerald-900);letter-spacing:-.02em}
-.amount-box .ab-sub{font:400 12px var(--font-sans);color:var(--emerald-700);margin-top:4px}
-.amount-box .ab-icon{width:56px;height:56px;border-radius:12px;background:var(--emerald-700);display:grid;place-items:center;color:#fff;flex-shrink:0}
-
-/* steps list */
-.steps-list{display:flex;flex-direction:column;gap:16px;margin-bottom:24px}
-.step-item-li{display:flex;gap:16px;align-items:flex-start}
-.step-num{width:28px;height:28px;border-radius:99px;background:var(--emerald-700);color:#fff;display:grid;place-items:center;font:600 13px var(--font-sans);flex-shrink:0;margin-top:1px}
-.step-content h4{font:600 15px var(--font-sans);color:var(--ink);margin-bottom:3px}
-.step-content p{font:400 13px/1.6 var(--font-sans);color:var(--silver-700)}
-
-/* ref input */
-.ref-group{margin-bottom:20px}
-.ref-group label{display:block;font:600 12px var(--font-sans);letter-spacing:.06em;text-transform:uppercase;color:var(--silver-600);margin-bottom:8px}
-.ref-group input{width:100%;height:44px;padding:0 14px;border:1px solid var(--silver-300);border-radius:8px;font:500 15px var(--font-mono);color:var(--ink);background:#fff;transition:border-color 150ms,box-shadow 150ms;letter-spacing:.04em}
-.ref-group input:focus{outline:none;border-color:var(--emerald-500);box-shadow:0 0 0 3px rgba(15,81,50,.1)}
-.ref-group .ref-note{font:400 12px var(--font-sans);color:var(--silver-600);margin-top:6px}
-
-/* summary sidebar */
-.summary-card{background:#fff;border:1px solid var(--silver-300);border-radius:14px;overflow:hidden;position:sticky;top:88px;box-shadow:var(--shadow-md)}
-.summary-card .sc-top{background:var(--emerald-900);color:#fff;padding:20px 24px;position:relative;overflow:hidden}
-.summary-card .sc-top::before{content:"";position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,#fff 0 2px,transparent 2px 6px);opacity:.04}
-.summary-card .sc-top .eyebrow{font:600 10px var(--font-sans);letter-spacing:.12em;text-transform:uppercase;color:#95BFA9;margin-bottom:4px;position:relative}
-.summary-card .sc-top h4{font:600 18px var(--font-sans);position:relative}
-.summary-card .sc-top .date{font:500 12px var(--font-mono);color:#95BFA9;margin-top:6px;position:relative}
-.summary-card .sc-mid{padding:20px 24px}
-.sum-row{display:flex;justify-content:space-between;font:400 14px var(--font-sans);color:var(--silver-700);margin-bottom:10px}
-.sum-row.total{font:600 16px var(--font-sans);color:var(--ink);padding-top:12px;margin-top:4px;border-top:1px solid var(--silver-300)}
-.summary-card .sc-footer{padding:16px 24px;border-top:1px solid var(--silver-200)}
-
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;border-radius:8px;font:500 15px var(--font-sans);border:1px solid transparent;transition:background 150ms,transform 150ms;width:100%}
-.btn:active{transform:scale(.98)}
-.btn-primary{background:var(--emerald-700);color:#fff}
-.btn-primary:hover{background:#0B3D26}
-.btn-lg{height:52px;font-size:16px;border-radius:10px}
-
-.timer-box{background:#FBF3E8;border:1px solid #ECD9B8;border-radius:10px;padding:14px 16px;margin-bottom:20px;display:flex;align-items:center;gap:12px}
-.timer-box svg{color:var(--amber-500);flex-shrink:0}
-.timer-box .t-label{font:600 13px var(--font-sans);color:var(--amber-700)}
-.timer-box .t-sub{font:400 12px var(--font-sans);color:var(--amber-700);margin-top:2px;opacity:.8}
-.timer-box .t-time{font:700 20px var(--font-mono);color:var(--amber-700);margin-left:auto}
-
-@media(max-width:760px){
-  .main{grid-template-columns:1fr}
-  .summary-card{position:static}
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f9f7; color: #111; min-height: 100vh; }
+.util-bar { background: #06291A; color: #a8c4b0; display: flex; align-items: center; padding: 0 40px; height: 36px; font-size: 12px; gap: 6px; }
+.util-dot { width: 7px; height: 7px; background: #4ade80; border-radius: 50%; }
+nav { background: #fff; border-bottom: 1px solid #e8e8e8; display: flex; align-items: center; padding: 0 40px; height: 64px; position: sticky; top: 0; z-index: 100; }
+.nav-logo { display: flex; align-items: center; gap: 6px; text-decoration: none; margin-right: 24px; }
+.nav-logo-text { font-size: 18px; font-weight: 700; color: #111; }
+.nav-logo-tld { color: #888; font-weight: 400; }
+.nav-back { color: #555; font-size: 14px; text-decoration: none; flex: 1; }
+.nav-back:hover { color: #06291A; }
+.btn-mytickets { background: #06291A; color: #fff; font-size: 14px; font-weight: 600; padding: 9px 18px; border-radius: 8px; text-decoration: none; margin-left: auto; }
+.steps-bar { background: #fff; border-bottom: 1px solid #e8e8e8; padding: 0 40px; display: flex; }
+.step { display: flex; align-items: center; gap: 8px; padding: 14px 20px; font-size: 13px; color: #bbb; border-bottom: 2px solid transparent; }
+.step.active { color: #06291A; border-bottom-color: #06291A; font-weight: 600; }
+.step.done { color: #888; }
+.step-num { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid currentColor; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+.step.active .step-num { background: #06291A; color: #fff; }
+.page-wrap { max-width: 680px; margin: 0 auto; padding: 40px; }
+.timer-strip { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.timer-label { font-size: 13px; color: #888; }
+.timer-val { font-size: 24px; font-weight: 800; color: #06291A; font-variant-numeric: tabular-nums; }
+.timer-val.urgent { color: #e53e3e; }
+.amount-card { background: #fff; border: 1.5px solid #06291A; border-radius: 14px; padding: 28px; text-align: center; margin-bottom: 20px; }
+.amount-label { font-size: 12px; font-weight: 700; color: #888; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 8px; }
+.amount-val { font-size: 44px; font-weight: 800; color: #06291A; letter-spacing: -1px; }
+.amount-note { font-size: 13px; color: #888; margin-top: 6px; }
+.card { background: #fff; border: 1px solid #e8e8e8; border-radius: 14px; padding: 24px; margin-bottom: 20px; }
+.card-title { font-size: 15px; font-weight: 700; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+.bank-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+.bank-row:last-of-type { border-bottom: none; }
+.bank-field-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #aaa; font-weight: 700; margin-bottom: 3px; }
+.bank-field-val { font-size: 15px; font-weight: 700; color: #111; }
+.copy-btn { background: #f5f5f5; border: 1px solid #e0e0e0; color: #555; font-size: 12px; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-family: inherit; }
+.copy-btn:hover { background: #eaf4ed; color: #06291A; border-color: #06291A; }
+.steps-list { font-size: 14px; color: #666; line-height: 2; margin-bottom: 20px; }
+.steps-list strong { color: #111; }
+.ref-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 14px; padding: 24px; }
+.ref-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+.ref-desc { font-size: 13px; color: #888; margin-bottom: 14px; line-height: 1.6; }
+input[type=text] { width: 100%; border: 1.5px solid #e0e0e0; border-radius: 8px; padding: 11px 14px; font-size: 15px; font-family: inherit; outline: none; }
+input[type=text]:focus { border-color: #06291A; }
+input.err { border-color: #e53e3e; }
+.btn-submit { display: block; width: 100%; background: #06291A; color: #fff; font-size: 16px; font-weight: 700; padding: 15px; border-radius: 9px; border: none; cursor: pointer; font-family: inherit; margin-top: 14px; }
+.btn-submit:hover { background: #0a3d26; }
+footer { background: #06291A; color: #6b9e80; padding: 28px 40px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-top: 48px; }
+.footer-logo { font-size: 16px; font-weight: 700; color: #fff; }
+.footer-copy { color: #4a7a5a; font-size: 12px; width: 100%; }
+@media (max-width: 600px) { .page-wrap { padding: 24px 20px; } nav, .util-bar, .steps-bar { padding-left: 20px; padding-right: 20px; } .amount-val { font-size: 36px; } }
 </style>
 </head>
 <body>
-
-<div class="util">
-  <div class="inner">
-    <span>mytikit.pk</span>
-    <span class="spacer"></span>
-    <span>🔒 SSL Secured Checkout</span>
+<div class="util-bar"><span class="util-dot"></span><span>2 Events on sale · Karachi</span></div>
+<nav>
+  <a href="index.html" class="nav-logo"><svg width="26" height="20" viewBox="0 0 28 22" fill="none"><rect x="0" y="4" width="4" height="14" rx="2" fill="#06291A"/><rect x="6" y="0" width="4" height="22" rx="2" fill="#06291A"/><rect x="12" y="6" width="4" height="10" rx="2" fill="#06291A"/><rect x="18" y="2" width="4" height="18" rx="2" fill="#06291A"/><rect x="24" y="7" width="4" height="8" rx="2" fill="#06291A"/></svg><span class="nav-logo-text">mytikit<span class="nav-logo-tld">.pk</span></span></a>
+  <a href="javascript:history.back()" class="nav-back">← Back</a>
+  <a href="#" class="btn-mytickets">My tickets</a>
+</nav>
+<div class="steps-bar">
+  <div class="step done"><span class="step-num">✓</span> Tickets</div>
+  <div class="step done"><span class="step-num">✓</span> Your details</div>
+  <div class="step active"><span class="step-num">3</span> Payment</div>
+  <div class="step"><span class="step-num">4</span> Confirmed</div>
+</div>
+<div class="page-wrap">
+  <div class="timer-strip">
+    <div><div style="font-size:14px;font-weight:700;">Seats reserved</div><div class="timer-label">Complete payment before time runs out</div></div>
+    <div class="timer-val" id="timer">10:00</div>
+  </div>
+  <div class="amount-card">
+    <div class="amount-label">Transfer exactly this amount</div>
+    <div class="amount-val" id="amount-display">Rs. 0</div>
+    <div class="amount-note">Do not round up or down — exact amount required</div>
+  </div>
+  <div class="card">
+    <div class="card-title">🏦 Meezan Bank — transfer details</div>
+    <div class="bank-row"><div><div class="bank-field-label">Account name</div><div class="bank-field-val">mytikit (Pvt) Ltd</div></div><button class="copy-btn" onclick="copyText('mytikit (Pvt) Ltd',this)">Copy</button></div>
+    <div class="bank-row"><div><div class="bank-field-label">Account number</div><div class="bank-field-val">0102-0123456789</div></div><button class="copy-btn" onclick="copyText('01020123456789',this)">Copy</button></div>
+    <div class="bank-row"><div><div class="bank-field-label">IBAN</div><div class="bank-field-val">PK36MEZN0001020123456789</div></div><button class="copy-btn" onclick="copyText('PK36MEZN0001020123456789',this)">Copy</button></div>
+    <div class="bank-row"><div><div class="bank-field-label">Bank</div><div class="bank-field-val">Meezan Bank</div></div></div>
+  </div>
+  <div class="steps-list">
+    <strong>How to pay:</strong><br>
+    1. Open your banking app (Meezan, EasyPaisa, JazzCash, or any bank)<br>
+    2. Go to <strong>Send Money / IBFT</strong><br>
+    3. Enter the account number or IBAN above<br>
+    4. Enter the <strong>exact amount</strong> shown<br>
+    5. In the reference field, write your <strong>phone number</strong><br>
+    6. Complete the transfer and enter the transaction ID below
+  </div>
+  <div class="ref-card">
+    <div class="ref-title">Transaction reference</div>
+    <div class="ref-desc">Enter the transaction ID from your bank app. This is how we match your payment to your booking.</div>
+    <input type="text" id="txn-ref" placeholder="e.g. TXN-20250614-XXXXXXX">
+    <button class="btn-submit" onclick="submitPayment()">I've completed the transfer →</button>
   </div>
 </div>
-
-<header class="header">
-  <div class="inner">
-    <a href="index.html" class="logo">my<span>tikit</span>.pk</a>
-  </div>
-</header>
-
-<div class="steps">
-  <div class="step-row">
-    <div class="step-item">
-      <div class="step-circle done">✓</div>
-      <div class="step-label">Tickets</div>
-    </div>
-    <div class="step-line done"></div>
-    <div class="step-item">
-      <div class="step-circle done">✓</div>
-      <div class="step-label">Your details</div>
-    </div>
-    <div class="step-line done"></div>
-    <div class="step-item">
-      <div class="step-circle active">3</div>
-      <div class="step-label active">Payment</div>
-    </div>
-    <div class="step-line"></div>
-    <div class="step-item">
-      <div class="step-circle pending">4</div>
-      <div class="step-label">Confirm</div>
-    </div>
-  </div>
-</div>
-
-<div class="main">
-  <div class="left">
-
-    <!-- Timer -->
-    <div class="timer-box">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-      <div>
-        <div class="t-label">Your seats are reserved</div>
-        <div class="t-sub">Complete payment before the timer runs out</div>
-      </div>
-      <div class="t-time" id="timer">09:59</div>
-    </div>
-
-    <!-- Amount to pay -->
-    <div class="amount-box" id="amount-box">
-      <div>
-        <div class="ab-label">Amount to transfer</div>
-        <div class="ab-amount" id="pay-amount">Rs. —</div>
-        <div class="ab-sub">Includes 2.5% service fee</div>
-      </div>
-      <div class="ab-icon">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>
-      </div>
-    </div>
-
-    <!-- Bank details -->
-    <div class="section-card">
-      <div class="sc-header">
-        <h3>Bank Transfer Details</h3>
-        <p>Transfer the exact amount shown above to this account</p>
-      </div>
-      <div class="sc-body">
-        <div class="bank-card">
-          <div class="bc-label">Transfer to</div>
-          <div class="bc-bank">Meezan Bank</div>
-          <button class="copy-btn" onclick="copyDetails()">Copy details</button>
-          <div class="bc-grid">
-            <div class="bc-item">
-              <div class="bc-item-label">Account title</div>
-              <div class="bc-item-value">MyTikit (Pvt) Ltd</div>
-            </div>
-            <div class="bc-item">
-              <div class="bc-item-label">Account number</div>
-              <div class="bc-item-value">0123-1234567-03</div>
-            </div>
-            <div class="bc-item">
-              <div class="bc-item-label">IBAN</div>
-              <div class="bc-item-value">PK36MEZN0001234567890</div>
-            </div>
-            <div class="bc-item">
-              <div class="bc-item-label">Branch code</div>
-              <div class="bc-item-value">0123</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="steps-list">
-          <div class="step-item-li">
-            <div class="step-num">1</div>
-            <div class="step-content">
-              <h4>Transfer the exact amount</h4>
-              <p>Use your mobile banking app, JazzCash, Easypaisa, or any IBFT. Transfer the exact amount shown above — even Rs. 1 difference causes a delay.</p>
-            </div>
-          </div>
-          <div class="step-item-li">
-            <div class="step-num">2</div>
-            <div class="step-content">
-              <h4>Note your transaction reference</h4>
-              <p>Your bank will give you a transaction ID or reference number after transfer. Keep it handy — you'll enter it below.</p>
-            </div>
-          </div>
-          <div class="step-item-li">
-            <div class="step-num">3</div>
-            <div class="step-content">
-              <h4>Enter the reference and confirm</h4>
-              <p>Once you've transferred, enter your transaction reference below. We verify within 30 minutes and send your ticket immediately.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="ref-group">
-          <label>Transaction reference number</label>
-          <input type="text" id="txn-ref" placeholder="e.g. TXN123456789 or your bank's reference">
-          <div class="ref-note">You'll find this in your bank app under transaction history or the SMS confirmation.</div>
-        </div>
-
-        <button class="btn btn-primary btn-lg" onclick="confirmPayment()">
-          I've transferred the payment →
-        </button>
-
-      </div>
-    </div>
-  </div>
-
-  <!-- Summary -->
-  <div class="summary-card">
-    <div class="sc-top">
-      <div class="eyebrow">Concert · Karachi</div>
-      <h4>Atif Aslam Live in Karachi</h4>
-      <div class="date">THU · 6 NOV 2025 · BEACH VIEW PARK</div>
-    </div>
-    <div class="sc-mid" id="summary-sidebar">
-      <p style="font-size:14px;color:var(--silver-600)">Loading...</p>
-    </div>
-    <div class="sc-footer">
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <div style="display:flex;align-items:center;gap:8px;font:400 12px var(--font-sans);color:var(--silver-600)">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#207A52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6l-8-4z"/><path d="M9 12l2 2 4-4"/></svg>
-          Tickets sent to WhatsApp within 30 mins of verification
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;font:400 12px var(--font-sans);color:var(--silver-600)">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#207A52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-          Free cancellation up to 48hrs before event
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
+<footer><div class="footer-logo">mytikit.pk</div><div class="footer-copy">© 2025 mytikit · Made in Karachi 🇵🇰</div></footer>
 <script>
-// Timer
-let seconds = 599;
+const params = new URLSearchParams(window.location.search);
+const total = parseInt(params.get('total')||0);
+document.getElementById('amount-display').textContent = 'Rs. '+total.toLocaleString();
+let secs = 600;
 const timerEl = document.getElementById('timer');
-const interval = setInterval(() => {
-  seconds--;
-  if (seconds <= 0) { clearInterval(interval); timerEl.textContent = '00:00'; return; }
-  const m = Math.floor(seconds/60).toString().padStart(2,'0');
-  const s = (seconds%60).toString().padStart(2,'0');
-  timerEl.textContent = `${m}:${s}`;
-}, 1000);
-
-// Load order
-function loadOrder() {
-  const raw = localStorage.getItem('mtk_order');
-  const order = raw ? JSON.parse(raw) : { subtotal:4750, fee:119, total:4869, saving:250 };
-  document.getElementById('pay-amount').textContent = 'Rs. ' + order.total.toLocaleString();
-  document.getElementById('summary-sidebar').innerHTML = `
-    <div style="display:flex;justify-content:space-between;font:400 14px var(--font-sans);color:var(--silver-700);margin-bottom:10px"><span>Subtotal</span><span>Rs. ${order.subtotal.toLocaleString()}</span></div>
-    <div style="display:flex;justify-content:space-between;font:400 14px var(--font-sans);color:var(--silver-700);margin-bottom:10px"><span>Service fee (2.5%)</span><span>Rs. ${order.fee.toLocaleString()}</span></div>
-    <div style="display:flex;justify-content:space-between;font:600 16px var(--font-sans);color:var(--ink);padding-top:12px;border-top:1px solid var(--silver-300)"><span>Total</span><span>Rs. ${order.total.toLocaleString()}</span></div>
-    <div style="display:flex;justify-content:space-between;font:500 13px var(--font-sans);color:var(--amber-700);margin-top:10px"><span>🎉 You saved</span><span>Rs. ${order.saving.toLocaleString()}</span></div>`;
-}
-
-function copyDetails() {
-  const text = `Meezan Bank\nAccount: 0123-1234567-03\nIBAN: PK36MEZN0001234567890\nTitle: MyTikit (Pvt) Ltd`;
-  navigator.clipboard.writeText(text).then(() => {
-    const btn = document.querySelector('.copy-btn');
-    btn.textContent = '✓ Copied!';
-    setTimeout(() => btn.textContent = 'Copy details', 2000);
+const iv = setInterval(()=>{
+  secs--;
+  const m = String(Math.floor(secs/60)).padStart(2,'0');
+  const s = String(secs%60).padStart(2,'0');
+  timerEl.textContent = m+':'+s;
+  if(secs<=60) timerEl.classList.add('urgent');
+  if(secs<=0) clearInterval(iv);
+},1000);
+function copyText(text,btn){
+  navigator.clipboard.writeText(text).then(()=>{
+    const o=btn.textContent; btn.textContent='Copied!'; btn.style.color='#06291A';
+    setTimeout(()=>{btn.textContent=o;btn.style.color='';},2000);
   });
 }
-
-function confirmPayment() {
-  const ref = document.getElementById('txn-ref').value.trim();
-  if (!ref) { alert('Please enter your transaction reference number.'); return; }
-  localStorage.setItem('mtk_txnref', ref);
-  window.location.href = 'confirmation.html';
+function submitPayment(){
+  const ref=document.getElementById('txn-ref').value.trim();
+  if(!ref){document.getElementById('txn-ref').classList.add('err');return;}
+  const p=new URLSearchParams(params); p.set('ref',ref);
+  window.location.href='confirmation.html?'+p.toString();
 }
-
-loadOrder();
 </script>
 </body>
 </html>
