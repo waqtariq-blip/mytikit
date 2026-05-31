@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Booking Confirmed — mytikit.pk</title>
+<!-- QR Code library (pure JS, no server needed) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f9f7; color: #111; min-height: 100vh; }
@@ -42,10 +44,11 @@ nav { background: #fff; border-bottom: 1px solid #e8e8e8; display: flex; align-i
 .ticket-details { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .td-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #aaa; font-weight: 700; margin-bottom: 3px; }
 .td-val { font-size: 14px; font-weight: 700; color: #111; }
-.ticket-ref-block { text-align: right; }
+.ticket-ref-block { text-align: right; margin-bottom: 10px; }
 .ticket-ref-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #aaa; font-weight: 700; margin-bottom: 4px; }
 .ticket-ref-val { font-size: 18px; font-weight: 800; color: #06291A; letter-spacing: 1px; }
-.qr-box { width: 80px; height: 80px; background: #fff; border: 1px solid #e8e8e8; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-top: 8px; margin-left: auto; }
+.qr-box { width: 90px; height: 90px; background: #fff; border: 1px solid #e8e8e8; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-left: auto; overflow: hidden; }
+.qr-box canvas, .qr-box img { width: 82px !important; height: 82px !important; }
 
 .status-card { background: #eaf4ed; border: 1px solid #c3e0cc; border-radius: 12px; padding: 18px 20px; margin-bottom: 20px; }
 .status-title { font-size: 14px; font-weight: 700; color: #06291A; margin-bottom: 10px; }
@@ -57,27 +60,50 @@ nav { background: #fff; border-bottom: 1px solid #e8e8e8; display: flex; align-i
 .delivery-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; }
 .delivery-item { background: #fff; border: 1px solid #e8e8e8; border-radius: 8px; padding: 10px 16px; font-size: 13px; color: #555; }
 
+/* DOWNLOAD BUTTON */
+.download-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; background: #fff; border: 1.5px solid #06291A; color: #06291A; font-size: 15px; font-weight: 700; padding: 14px; border-radius: 9px; cursor: pointer; font-family: inherit; margin-bottom: 12px; }
+.download-btn:hover { background: #eaf4ed; }
+
 .btn-home { display: block; text-align: center; background: #06291A; color: #fff; font-size: 15px; font-weight: 700; padding: 15px; border-radius: 9px; text-decoration: none; }
 .btn-home:hover { background: #0a3d26; }
+
+/* PRINTABLE TICKET (hidden, used for download) */
+#print-area {
+  display: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
 
 footer { background: #06291A; color: #6b9e80; padding: 28px 40px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-top: 48px; }
 .footer-logo { font-size: 16px; font-weight: 700; color: #fff; }
 .footer-copy { color: #4a7a5a; font-size: 12px; width: 100%; }
-@media (max-width: 600px) { .page-wrap { padding: 32px 20px; } nav, .util-bar, .steps-bar { padding-left: 20px; padding-right: 20px; } .ticket-details { grid-template-columns: 1fr; } .ticket-body { grid-template-columns: 1fr; } }
+
+@media (max-width: 600px) {
+  .page-wrap { padding: 32px 20px; }
+  nav, .util-bar, .steps-bar { padding-left: 20px; padding-right: 20px; }
+  .ticket-details { grid-template-columns: 1fr; }
+  .ticket-body { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
+
 <div class="util-bar"><span class="util-dot"></span><span>2 Events on sale · Karachi</span></div>
+
 <nav>
-  <a href="index.html" class="nav-logo"><svg width="26" height="20" viewBox="0 0 28 22" fill="none"><rect x="0" y="4" width="4" height="14" rx="2" fill="#06291A"/><rect x="6" y="0" width="4" height="22" rx="2" fill="#06291A"/><rect x="12" y="6" width="4" height="10" rx="2" fill="#06291A"/><rect x="18" y="2" width="4" height="18" rx="2" fill="#06291A"/><rect x="24" y="7" width="4" height="8" rx="2" fill="#06291A"/></svg><span class="nav-logo-text">mytikit<span class="nav-logo-tld">.pk</span></span></a>
+  <a href="index.html" class="nav-logo">
+    <svg width="26" height="20" viewBox="0 0 28 22" fill="none"><rect x="0" y="4" width="4" height="14" rx="2" fill="#06291A"/><rect x="6" y="0" width="4" height="22" rx="2" fill="#06291A"/><rect x="12" y="6" width="4" height="10" rx="2" fill="#06291A"/><rect x="18" y="2" width="4" height="18" rx="2" fill="#06291A"/><rect x="24" y="7" width="4" height="8" rx="2" fill="#06291A"/></svg>
+    <span class="nav-logo-text">mytikit<span class="nav-logo-tld">.pk</span></span>
+  </a>
   <a href="#" class="btn-mytickets">My tickets</a>
 </nav>
+
 <div class="steps-bar">
   <div class="step done"><span class="step-num">✓</span> Tickets</div>
   <div class="step done"><span class="step-num">✓</span> Your details</div>
   <div class="step done"><span class="step-num">✓</span> Payment</div>
   <div class="step active"><span class="step-num">✓</span> Confirmed</div>
 </div>
+
 <div class="page-wrap">
   <div class="success-header">
     <div class="success-icon">✓</div>
@@ -88,11 +114,15 @@ footer { background: #06291A; color: #6b9e80; padding: 28px 40px; display: flex;
   <div class="ticket">
     <div class="ticket-img" id="t-img">
       <div class="ticket-img-content">
-        <div class="ticket-img-cat" id="t-cat">Concert</div>
+        <div class="ticket-img-cat" id="t-cat">Concert · Karachi</div>
         <div class="ticket-img-title" id="t-name">Loading...</div>
       </div>
     </div>
-    <div class="ticket-divider"><div class="ticket-notch"></div><div class="ticket-dash"></div><div class="ticket-notch"></div></div>
+    <div class="ticket-divider">
+      <div class="ticket-notch"></div>
+      <div class="ticket-dash"></div>
+      <div class="ticket-notch"></div>
+    </div>
     <div class="ticket-body">
       <div class="ticket-details">
         <div><div class="td-label">Date</div><div class="td-val" id="t-date">—</div></div>
@@ -105,20 +135,8 @@ footer { background: #06291A; color: #6b9e80; padding: 28px 40px; display: flex;
           <div class="ticket-ref-label">Booking ref</div>
           <div class="ticket-ref-val" id="t-ref">—</div>
         </div>
-        <div class="qr-box">
-          <svg viewBox="0 0 21 21" width="64" height="64" xmlns="http://www.w3.org/2000/svg">
-            <rect width="21" height="21" fill="white"/>
-            <rect x="1" y="1" width="7" height="7" fill="none" stroke="black" stroke-width="1"/><rect x="2" y="2" width="5" height="5" fill="black"/>
-            <rect x="13" y="1" width="7" height="7" fill="none" stroke="black" stroke-width="1"/><rect x="14" y="2" width="5" height="5" fill="black"/>
-            <rect x="1" y="13" width="7" height="7" fill="none" stroke="black" stroke-width="1"/><rect x="2" y="14" width="5" height="5" fill="black"/>
-            <rect x="9" y="1" width="1" height="1" fill="black"/><rect x="11" y="1" width="1" height="1" fill="black"/>
-            <rect x="9" y="3" width="3" height="1" fill="black"/><rect x="9" y="5" width="1" height="3" fill="black"/>
-            <rect x="11" y="5" width="3" height="1" fill="black"/><rect x="13" y="9" width="1" height="3" fill="black"/>
-            <rect x="9" y="9" width="3" height="3" fill="black"/><rect x="13" y="13" width="5" height="5" fill="black"/>
-            <rect x="14" y="14" width="3" height="3" fill="white"/><rect x="9" y="13" width="3" height="1" fill="black"/>
-            <rect x="9" y="15" width="1" height="3" fill="black"/><rect x="11" y="15" width="3" height="3" fill="black"/>
-          </svg>
-        </div>
+        <!-- Real QR code renders here -->
+        <div class="qr-box" id="qr-container"></div>
       </div>
     </div>
   </div>
@@ -130,36 +148,171 @@ footer { background: #06291A; color: #6b9e80; padding: 28px 40px; display: flex;
     <div class="status-row"><span class="s-dot grey"></span> E-ticket delivered via WhatsApp & email</div>
   </div>
 
-  <div style="font-size:12px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Ticket delivered via</div>
+  <div style="font-size:12px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Ticket will be delivered via</div>
   <div class="delivery-row">
     <div class="delivery-item">💬 WhatsApp</div>
     <div class="delivery-item">📧 Email</div>
     <div class="delivery-item">📄 PDF download</div>
   </div>
 
+  <button class="download-btn" onclick="downloadTicket()">
+    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Download ticket PDF
+  </button>
+
   <a href="index.html" class="btn-home">Back to events</a>
 </div>
-<footer><div class="footer-logo">mytikit.pk</div><div class="footer-copy">© 2025 mytikit · Made in Karachi 🇵🇰</div></footer>
+
+<footer>
+  <div class="footer-logo">mytikit.pk</div>
+  <div class="footer-copy">© 2025 mytikit · Made in Karachi 🇵🇰</div>
+</footer>
+
 <script>
 const params = new URLSearchParams(window.location.search);
 const evtId = params.get('event');
-const total = parseInt(params.get('total')||0);
+const total = parseInt(params.get('total') || 0);
+const fname = params.get('fname') || '';
+const lname = params.get('lname') || '';
+const phone = params.get('phone') || '';
+const txnRef = params.get('ref') || '';
+
 const events = {
-  atif:{name:'Atif Aslam Live in Karachi',cat:'Concert · Karachi',date:'Sat 14 Jun 2025',venue:'National Stadium',cls:'concert'},
-  junaid:{name:'Junaid Akram: Half Time',cat:'Comedy · Karachi',date:'Fri 20 Jun 2025',venue:'NAPA Complex',cls:'comedy'}
+  atif:   { name:'Atif Aslam Live in Karachi', cat:'Concert · Karachi',  date:'Sat 14 Jun 2025', venue:'National Stadium', cls:'concert' },
+  junaid: { name:'Junaid Akram: Half Time',     cat:'Comedy · Karachi',   date:'Fri 20 Jun 2025', venue:'NAPA Complex',    cls:'comedy'  }
 };
-const ev = events[evtId]||events.atif;
-document.getElementById('t-name').textContent = ev.name;
-document.getElementById('t-cat').textContent = ev.cat;
-document.getElementById('t-img').className = 'ticket-img '+ev.cls;
-document.getElementById('t-date').textContent = ev.date;
+const tPrices = {
+  atif:   { silver:2500, gold:5000, vip:10000 },
+  junaid: { standard:1500, premium:3000 }
+};
+
+const ev = events[evtId] || events.atif;
+const ep = tPrices[evtId] || {};
+
+// Populate ticket UI
+document.getElementById('t-name').textContent  = ev.name;
+document.getElementById('t-cat').textContent   = ev.cat;
+document.getElementById('t-img').className     = 'ticket-img ' + ev.cls;
+document.getElementById('t-date').textContent  = ev.date;
 document.getElementById('t-venue').textContent = ev.venue;
-document.getElementById('t-total').textContent = 'Rs. '+total.toLocaleString();
-const tPrices = {atif:{silver:2500,gold:5000,vip:10000},junaid:{standard:1500,premium:3000}};
-const ep = tPrices[evtId]||{};
-const qty = Object.keys(ep).reduce((s,t)=>s+parseInt(params.get(t)||0),0);
-document.getElementById('t-qty').textContent = qty+(qty===1?' ticket':' tickets');
-document.getElementById('t-ref').textContent = 'MYT-'+Math.random().toString(36).toUpperCase().slice(2,8);
+document.getElementById('t-total').textContent = 'Rs. ' + total.toLocaleString();
+
+const qty = Object.keys(ep).reduce((s, t) => s + parseInt(params.get(t) || 0), 0);
+document.getElementById('t-qty').textContent = qty + (qty === 1 ? ' ticket' : ' tickets');
+
+// Generate unique booking reference from booking data
+function makeRef() {
+  const seed = evtId + phone + total + Date.now();
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = ((hash << 5) - hash) + seed.charCodeAt(i);
+    hash |= 0;
+  }
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let ref = 'MYT-';
+  let n = Math.abs(hash);
+  for (let i = 0; i < 6; i++) { ref += chars[n % chars.length]; n = Math.floor(n / chars.length); }
+  return ref;
+}
+
+const bookingRef = makeRef();
+document.getElementById('t-ref').textContent = bookingRef;
+
+// QR code data — encodes everything needed to verify at the gate
+const qrData = JSON.stringify({
+  ref:   bookingRef,
+  event: evtId,
+  name:  fname + ' ' + lname,
+  phone: phone,
+  qty:   qty,
+  total: total,
+  txn:   txnRef,
+  ts:    Date.now()
+});
+
+// Generate real QR code
+new QRCode(document.getElementById('qr-container'), {
+  text:            qrData,
+  width:           82,
+  height:          82,
+  colorDark:       '#06291A',
+  colorLight:      '#ffffff',
+  correctLevel:    QRCode.CorrectLevel.M
+});
+
+// Download ticket as image
+function downloadTicket() {
+  // Wait a tick for QR to fully render
+  setTimeout(() => {
+    const canvas = document.querySelector('#qr-container canvas');
+    const qrDataUrl = canvas ? canvas.toDataURL('image/png') : '';
+
+    // Build a printable ticket HTML in a new window
+    const ticketColors = { concert: 'linear-gradient(160deg,#5c1010,#2d0808,#0d1a10)', comedy: 'linear-gradient(160deg,#5c3a00,#2d1c00,#0d1205)' };
+    const bg = ticketColors[ev.cls] || ticketColors.concert;
+
+    const win = window.open('', '_blank', 'width=620,height=820');
+    win.document.write(`
+      <!DOCTYPE html><html><head><meta charset="UTF-8">
+      <title>mytikit Ticket — ${bookingRef}</title>
+      <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:#f5f5f5; display:flex; justify-content:center; padding:30px; }
+        .ticket { width:560px; background:#fff; border-radius:20px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.12); }
+        .t-header { background:${bg}; padding:32px 28px 28px; }
+        .t-logo { font-size:14px; font-weight:700; color:rgba(255,255,255,0.6); margin-bottom:20px; }
+        .t-cat { font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:rgba(255,255,255,0.5); margin-bottom:6px; }
+        .t-name { font-size:26px; font-weight:800; color:#fff; line-height:1.1; }
+        .t-divider { display:flex; align-items:center; }
+        .t-notch { width:24px; height:24px; background:#f5f5f5; border-radius:50%; flex-shrink:0; }
+        .t-dash { flex:1; border-top:2px dashed #e0e0e0; }
+        .t-body { padding:24px 28px; display:flex; justify-content:space-between; align-items:flex-start; }
+        .t-details { display:grid; grid-template-columns:1fr 1fr; gap:16px 24px; }
+        .t-label { font-size:10px; text-transform:uppercase; letter-spacing:0.5px; color:#aaa; font-weight:700; margin-bottom:3px; }
+        .t-val { font-size:14px; font-weight:700; color:#111; }
+        .t-qr-block { text-align:center; }
+        .t-ref-label { font-size:10px; text-transform:uppercase; letter-spacing:0.5px; color:#aaa; font-weight:700; margin-bottom:6px; }
+        .t-ref { font-size:15px; font-weight:800; color:#06291A; letter-spacing:1px; margin-bottom:10px; }
+        .t-qr { width:100px; height:100px; border:1px solid #e8e8e8; border-radius:8px; }
+        .t-footer { background:#06291A; padding:14px 28px; display:flex; justify-content:space-between; align-items:center; }
+        .t-footer-text { color:#6b9e80; font-size:12px; }
+        .t-footer-logo { color:#fff; font-weight:700; font-size:14px; }
+        @media print { body { background:#fff; padding:0; } .ticket { box-shadow:none; } }
+      </style>
+      </head><body>
+      <div class="ticket">
+        <div class="t-header">
+          <div class="t-logo">mytikit.pk</div>
+          <div class="t-cat">${ev.cat}</div>
+          <div class="t-name">${ev.name}</div>
+        </div>
+        <div class="t-divider"><div class="t-notch"></div><div class="t-dash"></div><div class="t-notch"></div></div>
+        <div class="t-body">
+          <div class="t-details">
+            <div><div class="t-label">Name</div><div class="t-val">${fname} ${lname}</div></div>
+            <div><div class="t-label">Phone</div><div class="t-val">${phone}</div></div>
+            <div><div class="t-label">Date</div><div class="t-val">${ev.date}</div></div>
+            <div><div class="t-label">Venue</div><div class="t-val">${ev.venue}</div></div>
+            <div><div class="t-label">Tickets</div><div class="t-val">${qty} ticket${qty>1?'s':''}</div></div>
+            <div><div class="t-label">Amount paid</div><div class="t-val">Rs. ${total.toLocaleString()}</div></div>
+          </div>
+          <div class="t-qr-block">
+            <div class="t-ref-label">Booking ref</div>
+            <div class="t-ref">${bookingRef}</div>
+            ${qrDataUrl ? `<img class="t-qr" src="${qrDataUrl}" alt="QR Code">` : ''}
+          </div>
+        </div>
+        <div class="t-footer">
+          <div class="t-footer-text">Show this QR at the gate · Valid ID required</div>
+          <div class="t-footer-logo">mytikit.pk</div>
+        </div>
+      </div>
+      <script>window.onload = () => window.print();<\/script>
+      </body></html>
+    `);
+    win.document.close();
+  }, 100);
+}
 </script>
 </body>
 </html>
