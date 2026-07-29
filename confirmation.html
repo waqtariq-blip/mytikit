@@ -47,8 +47,8 @@ nav { background: #fff; border-bottom: 1px solid #e8e8e8; display: flex; align-i
 .ticket-ref-block { text-align: right; margin-bottom: 10px; }
 .ticket-ref-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #aaa; font-weight: 700; margin-bottom: 4px; }
 .ticket-ref-val { font-size: 18px; font-weight: 800; color: #06291A; letter-spacing: 1px; }
-.qr-box { width: 90px; height: 90px; background: #fff; border: 1px solid #e8e8e8; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-left: auto; overflow: hidden; }
-.qr-box canvas, .qr-box img { width: 82px !important; height: 82px !important; }
+.qr-box { width: 120px; height: 120px; background: #fff; border: 1px solid #e8e8e8; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-left: auto; overflow: hidden; }
+.qr-box canvas, .qr-box img { width: 112px !important; height: 112px !important; }
 
 .status-card { background: #eaf4ed; border: 1px solid #c3e0cc; border-radius: 12px; padding: 18px 20px; margin-bottom: 20px; }
 .status-title { font-size: 14px; font-weight: 700; color: #06291A; margin-bottom: 10px; }
@@ -218,26 +218,17 @@ function makeRef() {
 const bookingRef = makeRef();
 document.getElementById('t-ref').textContent = bookingRef;
 
-// QR code data — encodes everything needed to verify at the gate
-const qrData = JSON.stringify({
-  ref:   bookingRef,
-  event: evtId,
-  name:  fname + ' ' + lname,
-  phone: phone,
-  qty:   qty,
-  total: total,
-  txn:   txnRef,
-  ts:    Date.now()
-});
+// QR encodes just the booking reference — clean, fast to scan at the gate
+const qrData = bookingRef;
 
 // Generate real QR code
 new QRCode(document.getElementById('qr-container'), {
   text:            qrData,
-  width:           82,
-  height:          82,
+  width:           112,
+  height:          112,
   colorDark:       '#06291A',
   colorLight:      '#ffffff',
-  correctLevel:    QRCode.CorrectLevel.M
+  correctLevel:    QRCode.CorrectLevel.L
 });
 
 // Download ticket as image
