@@ -7,14 +7,13 @@
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f9f7; color: #111; min-height: 100vh; }
-.util-bar { background: #06291A; color: #a8c4b0; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; height: 36px; font-size: 12px; }
-.util-dot { width: 7px; height: 7px; background: #4ade80; border-radius: 50%; display: inline-block; margin-right: 6px; }
+.util-bar { background: #06291A; color: #a8c4b0; display: flex; align-items: center; padding: 0 40px; height: 36px; font-size: 12px; gap: 6px; }
+.util-dot { width: 7px; height: 7px; background: #4ade80; border-radius: 50%; }
 nav { background: #fff; border-bottom: 1px solid #e8e8e8; display: flex; align-items: center; padding: 0 40px; height: 64px; position: sticky; top: 0; z-index: 100; }
 .nav-logo { display: flex; align-items: center; gap: 6px; text-decoration: none; margin-right: 24px; }
 .nav-logo-text { font-size: 18px; font-weight: 700; color: #111; }
 .nav-logo-tld { color: #888; font-weight: 400; }
 .nav-back { color: #555; font-size: 14px; text-decoration: none; flex: 1; }
-.nav-back:hover { color: #06291A; }
 .btn-mytickets { background: #06291A; color: #fff; font-size: 14px; font-weight: 600; padding: 9px 18px; border-radius: 8px; text-decoration: none; margin-left: auto; }
 .steps-bar { background: #fff; border-bottom: 1px solid #e8e8e8; padding: 0 40px; display: flex; }
 .step { display: flex; align-items: center; gap: 8px; padding: 14px 20px; font-size: 13px; color: #bbb; border-bottom: 2px solid transparent; }
@@ -34,8 +33,10 @@ input.err { border-color: #e53e3e; }
 .err-msg.show { display: block; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .btn-submit { display: block; width: 100%; background: #06291A; color: #fff; font-size: 16px; font-weight: 700; padding: 15px; border-radius: 9px; border: none; cursor: pointer; font-family: inherit; margin-top: 8px; }
-.btn-submit:hover { background: #0a3d26; }
+.btn-submit:hover:not(:disabled) { background: #0a3d26; }
+.btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 .secure-note { text-align: center; font-size: 12px; color: #aaa; margin-top: 10px; }
+.error-banner { background: #fdf2f2; border: 1px solid #f5c6c6; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #c0392b; margin-bottom: 16px; display: none; }
 .order-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 14px; padding: 24px; position: sticky; top: 80px; }
 .order-card-title { font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; }
 .order-event-name { font-size: 16px; font-weight: 800; margin-bottom: 3px; }
@@ -51,7 +52,7 @@ footer { background: #06291A; color: #6b9e80; padding: 28px 40px; display: flex;
 </style>
 </head>
 <body>
-<div class="util-bar"><span><span class="util-dot"></span>2 Events on sale · Karachi</span></div>
+<div class="util-bar"><span class="util-dot"></span><span>mytikit.pk</span></div>
 <nav>
   <a href="index.html" class="nav-logo"><svg width="26" height="20" viewBox="0 0 28 22" fill="none"><rect x="0" y="4" width="4" height="14" rx="2" fill="#06291A"/><rect x="6" y="0" width="4" height="22" rx="2" fill="#06291A"/><rect x="12" y="6" width="4" height="10" rx="2" fill="#06291A"/><rect x="18" y="2" width="4" height="18" rx="2" fill="#06291A"/><rect x="24" y="7" width="4" height="8" rx="2" fill="#06291A"/></svg><span class="nav-logo-text">mytikit<span class="nav-logo-tld">.pk</span></span></a>
   <a href="javascript:history.back()" class="nav-back">← Back</a>
@@ -66,6 +67,7 @@ footer { background: #06291A; color: #6b9e80; padding: 28px 40px; display: flex;
 <div class="page-wrap">
   <div class="form-card">
     <div class="form-card-title">Your details</div>
+    <div class="error-banner" id="error-banner"></div>
     <div class="form-row">
       <div class="form-group"><label>First name</label><input type="text" id="fname" placeholder="Ali"><div class="err-msg" id="err-fname">Required</div></div>
       <div class="form-group"><label>Last name</label><input type="text" id="lname" placeholder="Khan"><div class="err-msg" id="err-lname">Required</div></div>
@@ -73,7 +75,7 @@ footer { background: #06291A; color: #6b9e80; padding: 28px 40px; display: flex;
     <div class="form-group"><label>Phone number</label><input type="tel" id="phone" placeholder="03xx-xxxxxxx"><div class="err-msg" id="err-phone">Enter a valid Pakistani number</div></div>
     <div class="form-group"><label>Email address</label><input type="text" id="email" placeholder="ali@example.com"><div class="err-msg" id="err-email">Enter a valid email</div></div>
     <div class="form-group"><label>CNIC number</label><input type="text" id="cnic" placeholder="xxxxx-xxxxxxx-x" maxlength="15"><div class="err-msg" id="err-cnic">Enter valid CNIC (e.g. 42101-1234567-1)</div></div>
-    <button class="btn-submit" onclick="submitForm()">Continue to payment →</button>
+    <button class="btn-submit" id="submit-btn" onclick="submitForm()">Continue to payment →</button>
     <div class="secure-note">🔒 Your information is encrypted and secure</div>
   </div>
   <div class="order-card">
@@ -90,46 +92,107 @@ footer { background: #06291A; color: #6b9e80; padding: 28px 40px; display: flex;
 <footer><div class="footer-logo">mytikit.pk</div><div class="footer-copy">© 2025 mytikit · Made in Karachi 🇵🇰</div></footer>
 <script>
 const params = new URLSearchParams(window.location.search);
-const evtId = params.get('event');
-const total = parseInt(params.get('total')||0);
-const fee = parseInt(params.get('fee')||0);
-const evtNames = {atif:'Atif Aslam Live in Karachi',junaid:'Junaid Akram: Half Time'};
-const evtMeta = {atif:'Sat 14 Jun 2025 · National Stadium · 8:00 PM',junaid:'Fri 20 Jun 2025 · NAPA Complex · 9:00 PM'};
-const tPrices = {atif:{silver:2500,gold:5000,vip:10000},junaid:{standard:1500,premium:3000}};
-document.getElementById('s-name').textContent = evtNames[evtId]||'Event';
-document.getElementById('s-meta').textContent = evtMeta[evtId]||'';
-const ep = tPrices[evtId]||{};
-const linesEl = document.getElementById('s-lines');
-Object.keys(ep).forEach(t => {
-  const q = parseInt(params.get(t)||0);
-  if(q>0){const d=document.createElement('div');d.className='order-line';d.innerHTML=`<span>${q}× ${t[0].toUpperCase()+t.slice(1)}</span><span>Rs. ${(q*ep[t]).toLocaleString()}</span>`;linesEl.appendChild(d);}
-});
-document.getElementById('s-fee').textContent = 'Rs. '+fee.toLocaleString();
-document.getElementById('s-total').textContent = 'Rs. '+total.toLocaleString();
+const eventSlug = params.get('event_slug');
+const total = parseInt(params.get('total') || 0);
+const fee = parseInt(params.get('fee') || 0);
+const items = JSON.parse(params.get('items') || '[]');
+
+// Load event name for sidebar
+fetch('/api/event?slug=' + eventSlug)
+  .then(r => r.json())
+  .then(ev => {
+    document.getElementById('s-name').textContent = ev.name || 'Event';
+    document.getElementById('s-meta').textContent = (ev.venue || '') + ' · ' + (ev.event_time || '');
+
+    const linesEl = document.getElementById('s-lines');
+    items.forEach(item => {
+      const tt = ev.ticket_types?.find(t => t.id === item.ticket_type_id);
+      if (tt) {
+        const d = document.createElement('div');
+        d.className = 'order-line';
+        d.innerHTML = `<span>${item.quantity}× ${tt.name}</span><span>Rs. ${(item.quantity * tt.price).toLocaleString()}</span>`;
+        linesEl.appendChild(d);
+      }
+    });
+  }).catch(() => {});
+
+document.getElementById('s-fee').textContent = 'Rs. ' + fee.toLocaleString();
+document.getElementById('s-total').textContent = 'Rs. ' + total.toLocaleString();
+
 function validate(id, fn, errId) {
-  const el=document.getElementById(id); const ok=fn(el.value.trim());
-  el.classList.toggle('err',!ok); document.getElementById(errId).classList.toggle('show',!ok); return ok;
+  const el = document.getElementById(id);
+  const ok = fn(el.value.trim());
+  el.classList.toggle('err', !ok);
+  document.getElementById(errId).classList.toggle('show', !ok);
+  return ok;
 }
-function submitForm() {
-  const v1=validate('fname',v=>v.length>1,'err-fname');
-  const v2=validate('lname',v=>v.length>1,'err-lname');
-  const v3=validate('phone',v=>/^03\d{2}[-\s]?\d{7}$/.test(v),'err-phone');
-  const v4=validate('email',v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),'err-email');
-  const v5=validate('cnic',v=>/^\d{5}-\d{7}-\d$/.test(v),'err-cnic');
-  if(v1&&v2&&v3&&v4&&v5){
-    const p=new URLSearchParams(params);
-    p.set('fname',document.getElementById('fname').value.trim());
-    p.set('lname',document.getElementById('lname').value.trim());
-    p.set('phone',document.getElementById('phone').value.trim());
-    p.set('email',document.getElementById('email').value.trim());
-    window.location.href='payment.html?'+p.toString();
+
+async function submitForm() {
+  const v1 = validate('fname', v => v.length > 1, 'err-fname');
+  const v2 = validate('lname', v => v.length > 1, 'err-lname');
+  const v3 = validate('phone', v => /^03\d{2}[-\s]?\d{7}$/.test(v), 'err-phone');
+  const v4 = validate('email', v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), 'err-email');
+  const v5 = validate('cnic', v => /^\d{5}-\d{7}-\d$/.test(v), 'err-cnic');
+  if (!v1 || !v2 || !v3 || !v4 || !v5) return;
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Creating booking...';
+
+  // Enrich items with unit_price from event data
+  const evData = await fetch('/api/event?slug=' + eventSlug).then(r => r.json()).catch(() => null);
+  const enrichedItems = items.map(item => {
+    const tt = evData?.ticket_types?.find(t => t.id === item.ticket_type_id);
+    return { ...item, unit_price: tt?.price || 0, subtotal: (tt?.price || 0) * item.quantity };
+  });
+
+  try {
+    const res = await fetch('/api/bookings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        event_slug: eventSlug,
+        fname: document.getElementById('fname').value.trim(),
+        lname: document.getElementById('lname').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        cnic: document.getElementById('cnic').value.trim(),
+        items: enrichedItems
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || data.error) {
+      const banner = document.getElementById('error-banner');
+      banner.textContent = data.error || 'Something went wrong. Please try again.';
+      banner.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Continue to payment →';
+      return;
+    }
+
+    // Booking created — go to payment
+    const p = new URLSearchParams({
+      booking_ref: data.booking_ref,
+      total: data.total,
+      event_slug: eventSlug
+    });
+    window.location.href = 'payment.html?' + p.toString();
+
+  } catch (err) {
+    document.getElementById('error-banner').textContent = 'Network error. Please check your connection and try again.';
+    document.getElementById('error-banner').style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Continue to payment →';
   }
 }
-document.getElementById('cnic').addEventListener('input',function(){
-  let v=this.value.replace(/\D/g,'');
-  if(v.length>5) v=v.slice(0,5)+'-'+v.slice(5);
-  if(v.length>13) v=v.slice(0,13)+'-'+v.slice(13);
-  this.value=v.slice(0,15);
+
+document.getElementById('cnic').addEventListener('input', function() {
+  let v = this.value.replace(/\D/g, '');
+  if (v.length > 5) v = v.slice(0, 5) + '-' + v.slice(5);
+  if (v.length > 13) v = v.slice(0, 13) + '-' + v.slice(13);
+  this.value = v.slice(0, 15);
 });
 </script>
 </body>

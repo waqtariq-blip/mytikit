@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Event — mytikit.pk</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #fff; color: #111; }
+.util-bar { background: #06291A; color: #a8c4b0; display: flex; align-items: center; padding: 0 40px; height: 36px; font-size: 12px; gap: 6px; }
+.util-dot { width: 7px; height: 7px; background: #4ade80; border-radius: 50%; }
+nav { background: #fff; border-bottom: 1px solid #e8e8e8; display: flex; align-items: center; padding: 0 40px; height: 64px; position: sticky; top: 0; z-index: 100; }
+.nav-logo { display: flex; align-items: center; gap: 6px; text-decoration: none; margin-right: 24px; }
+.nav-logo-text { font-size: 18px; font-weight: 700; color: #111; }
+.nav-logo-tld { color: #888; font-weight: 400; }
+.nav-back { color: #555; font-size: 14px; text-decoration: none; flex: 1; }
+.nav-back:hover { color: #06291A; }
+.btn-mytickets { background: #06291A; color: #fff; font-size: 14px; font-weight: 600; padding: 9px 18px; border-radius: 8px; text-decoration: none; margin-left: auto; }
+.event-hero { padding: 56px 40px 48px; }
+.event-hero.red { background: linear-gradient(160deg, #5c1010 0%, #2d0808 50%, #0d1a10 100%); }
+.event-hero.brown { background: linear-gradient(160deg, #5c3a00 0%, #2d1c00 50%, #0d1205 100%); }
+.event-hero-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 360px; gap: 48px; align-items: start; }
+.event-cat { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 10px; }
+.event-title { font-size: clamp(36px, 5vw, 56px); font-weight: 800; color: #fff; letter-spacing: -1.5px; line-height: 1.05; margin-bottom: 20px; }
+.event-meta-row { display: flex; flex-wrap: wrap; gap: 20px; }
+.event-meta-item { display: flex; align-items: center; gap: 7px; font-size: 14px; color: rgba(255,255,255,0.7); }
+.event-meta-item strong { color: #fff; }
+.urgency-badge { display: inline-flex; align-items: center; gap: 5px; background: #c4731a; color: #fff; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 6px; margin-top: 16px; }
+.ticket-sidebar { background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 8px 40px rgba(0,0,0,0.25); }
+.sidebar-title { font-size: 16px; font-weight: 800; margin-bottom: 18px; }
+.ticket-tier { border: 1.5px solid #e8e8e8; border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; transition: border-color 0.15s; }
+.ticket-tier.selected { border-color: #06291A; background: #f3faf5; }
+.ticket-tier.sold-out { opacity: 0.5; }
+.tier-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+.tier-name { font-size: 15px; font-weight: 700; }
+.tier-price { font-size: 17px; font-weight: 800; color: #06291A; }
+.tier-desc { font-size: 12px; color: #888; margin-bottom: 8px; }
+.tier-avail { font-size: 11px; color: #c4731a; font-weight: 600; margin-bottom: 10px; }
+.tier-qty { display: flex; align-items: center; gap: 10px; }
+.qty-btn { width: 30px; height: 30px; border: 1.5px solid #e0e0e0; background: #fff; border-radius: 7px; font-size: 17px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.qty-btn:hover:not(:disabled) { border-color: #06291A; color: #06291A; }
+.qty-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.qty-val { font-size: 15px; font-weight: 700; min-width: 18px; text-align: center; }
+.order-summary { border-top: 1px solid #e8e8e8; margin-top: 14px; padding-top: 14px; }
+.order-row { display: flex; justify-content: space-between; font-size: 13px; color: #666; margin-bottom: 6px; }
+.order-total-row { display: flex; justify-content: space-between; font-size: 17px; font-weight: 800; margin-top: 10px; padding-top: 10px; border-top: 1px solid #e8e8e8; }
+.order-total-row span:last-child { color: #06291A; }
+.proceed-btn { display: block; width: 100%; background: #06291A; color: #fff; font-size: 15px; font-weight: 700; padding: 14px; border-radius: 9px; border: none; cursor: pointer; text-align: center; text-decoration: none; font-family: inherit; margin-top: 16px; }
+.proceed-btn:hover { background: #0a3d26; }
+.proceed-btn[data-disabled] { opacity: 0.4; pointer-events: none; }
+.sidebar-note { text-align: center; font-size: 11px; color: #aaa; margin-top: 8px; }
+.event-body { max-width: 1100px; margin: 0 auto; padding: 40px; }
+.tabs { display: flex; border-bottom: 1px solid #e8e8e8; margin-bottom: 28px; }
+.tab { background: none; border: none; font-size: 14px; font-family: inherit; color: #888; padding: 10px 18px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab.active { color: #06291A; border-bottom-color: #06291A; font-weight: 600; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.prose { font-size: 15px; color: #555; line-height: 1.8; }
+.prose h3 { font-size: 17px; font-weight: 700; color: #111; margin: 20px 0 6px; }
+.prose p { margin-bottom: 14px; }
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+.info-box { background: #f9f9f7; border: 1px solid #e8e8e8; border-radius: 9px; padding: 14px; }
+.info-box-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #aaa; margin-bottom: 4px; font-weight: 700; }
+.info-box-val { font-size: 14px; font-weight: 600; color: #111; }
+footer { background: #06291A; color: #6b9e80; padding: 32px 40px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-top: 48px; }
+.footer-logo { font-size: 16px; font-weight: 700; color: #fff; }
+.footer-links a { color: #6b9e80; font-size: 13px; text-decoration: none; }
+.footer-copy { color: #4a7a5a; font-size: 12px; width: 100%; }
+@media (max-width: 768px) { .event-hero-inner { grid-template-columns: 1fr; } .event-hero, nav { padding-left: 20px; padding-right: 20px; } .event-body { padding: 28px 20px; } .info-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="util-bar"><span class="util-dot"></span><span>mytikit.pk</span></div>
+<nav>
+  <a href="index.html" class="nav-logo"><svg width="26" height="20" viewBox="0 0 28 22" fill="none"><rect x="0" y="4" width="4" height="14" rx="2" fill="#06291A"/><rect x="6" y="0" width="4" height="22" rx="2" fill="#06291A"/><rect x="12" y="6" width="4" height="10" rx="2" fill="#06291A"/><rect x="18" y="2" width="4" height="18" rx="2" fill="#06291A"/><rect x="24" y="7" width="4" height="8" rx="2" fill="#06291A"/></svg><span class="nav-logo-text">mytikit<span class="nav-logo-tld">.pk</span></span></a>
+  <a href="index.html" class="nav-back">← All events</a>
+  <a href="#" class="btn-mytickets">My tickets</a>
+</nav>
+
+<div class="event-hero" id="event-hero">
+  <div class="event-hero-inner">
+    <div id="event-info"><p style="color:rgba(255,255,255,0.6)">Loading event...</p></div>
+    <div class="ticket-sidebar" id="ticket-sidebar">
+      <div class="sidebar-title">Select tickets</div>
+      <div id="ticket-tiers"><p style="color:#888;font-size:14px">Loading...</p></div>
+      <div id="order-summary" style="display:none;" class="order-summary">
+        <div id="summary-rows"></div>
+        <div class="order-row"><span>Service fee (2.5%)</span><span id="fee-amt"></span></div>
+        <div class="order-total-row"><span>Total</span><span id="total-amt"></span></div>
+      </div>
+      <a href="#" class="proceed-btn" id="proceed-btn" data-disabled="true">Get tickets →</a>
+      <div class="sidebar-note">Seats held for 10 mins after checkout</div>
+    </div>
+  </div>
+</div>
+
+<div class="event-body">
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('about',this)">About</button>
+    <button class="tab" onclick="showTab('venue',this)">Venue</button>
+    <button class="tab" onclick="showTab('faq',this)">FAQ</button>
+  </div>
+  <div id="tab-about" class="tab-content active"><div class="prose" id="about-text">Loading...</div></div>
+  <div id="tab-venue" class="tab-content"><div class="info-grid" id="venue-grid"></div></div>
+  <div id="tab-faq" class="tab-content">
+    <div class="prose">
+      <h3>How do I get my ticket?</h3>
+      <p>After bank transfer is verified, your QR code ticket is sent via WhatsApp and email within 30 minutes.</p>
+      <h3>Can I buy at the gate?</h3>
+      <p>No. All purchases must be made in advance through mytikit.</p>
+      <h3>What if I can't attend?</h3>
+      <p>Tickets are transferable up to 48 hours before the event. Contact us on WhatsApp to transfer.</p>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">mytikit.pk</div>
+  <div class="footer-links"><a href="#">About</a><a href="#">Help</a><a href="#">Terms</a></div>
+  <div class="footer-copy">© 2025 mytikit · Made in Karachi 🇵🇰</div>
+</footer>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const slug = params.get('slug');
+if (!slug) window.location.href = 'index.html';
+
+let eventData = null;
+const qtys = {};
+
+function formatDate(dateStr) {
+  return new Date(dateStr).toLocaleDateString('en-PK', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+}
+
+function renderEvent(ev) {
+  eventData = ev;
+  document.title = ev.name + ' — mytikit.pk';
+
+  // Hero background
+  const hero = document.getElementById('event-hero');
+  hero.classList.add(ev.image_class || 'red');
+
+  // Event info
+  document.getElementById('event-info').innerHTML = `
+    <div class="event-cat">${ev.category} · ${ev.city}</div>
+    <h1 class="event-title">${ev.name}</h1>
+    <div class="event-meta-row">
+      <div class="event-meta-item"><strong>${formatDate(ev.event_date)}</strong></div>
+      <div class="event-meta-item"><strong>Doors ${ev.doors_time} · Show ${ev.event_time}</strong></div>
+      <div class="event-meta-item"><strong>${ev.venue}, ${ev.city}</strong></div>
+    </div>
+    ${ev.ticket_types?.some(t => t.available > 0 && t.available <= 30) ? '<div class="urgency-badge">🔥 Selling fast</div>' : ''}
+  `;
+
+  // About
+  document.getElementById('about-text').innerHTML = `<p>${ev.description || ''}</p>`;
+
+  // Venue
+  document.getElementById('venue-grid').innerHTML = [
+    ['Venue', ev.venue],
+    ['City', ev.city],
+    ['Date', formatDate(ev.event_date)],
+    ['Doors open', ev.doors_time],
+    ['Show starts', ev.event_time],
+    ['Category', ev.category]
+  ].map(([l, v]) => `<div class="info-box"><div class="info-box-label">${l}</div><div class="info-box-val">${v}</div></div>`).join('');
+
+  // Ticket tiers
+  if (!ev.ticket_types?.length) {
+    document.getElementById('ticket-tiers').innerHTML = '<p style="color:#888;font-size:14px">No tickets available.</p>';
+    return;
+  }
+
+  ev.ticket_types.forEach(t => { qtys[t.id] = 0; });
+
+  document.getElementById('ticket-tiers').innerHTML = ev.ticket_types.map(t => {
+    const soldOut = t.sold_out;
+    const lowStock = !soldOut && t.available <= 20;
+    return `
+      <div class="ticket-tier${soldOut ? ' sold-out' : ''}" id="tt-${t.id}">
+        <div class="tier-top">
+          <span class="tier-name">${t.name}${soldOut ? ' — Sold out' : ''}</span>
+          <span class="tier-price">Rs. ${t.price.toLocaleString()}</span>
+        </div>
+        <div class="tier-desc">${t.description || ''}</div>
+        ${lowStock ? `<div class="tier-avail">Only ${t.available} left</div>` : ''}
+        <div class="tier-qty">
+          <button class="qty-btn" onclick="changeQty('${t.id}', -1, ${t.price}, '${t.name}', ${t.available})" ${soldOut ? 'disabled' : ''}>−</button>
+          <span class="qty-val" id="qty-${t.id}">0</span>
+          <button class="qty-btn" onclick="changeQty('${t.id}', 1, ${t.price}, '${t.name}', ${t.available})" ${soldOut ? 'disabled' : ''}>+</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function changeQty(typeId, delta, price, name, available) {
+  qtys[typeId] = Math.max(0, Math.min(available, (qtys[typeId] || 0) + delta));
+  document.getElementById('qty-' + typeId).textContent = qtys[typeId];
+  document.getElementById('tt-' + typeId).classList.toggle('selected', qtys[typeId] > 0);
+  updateSummary();
+}
+
+function updateSummary() {
+  if (!eventData) return;
+  const typeMap = {};
+  eventData.ticket_types.forEach(t => { typeMap[t.id] = t; });
+  const sub = Object.entries(qtys).reduce((s, [id, q]) => s + q * (typeMap[id]?.price || 0), 0);
+  const fee = Math.round(sub * 0.025);
+  const total = sub + fee;
+  const has = sub > 0;
+
+  document.getElementById('order-summary').style.display = has ? 'block' : 'none';
+  document.getElementById('summary-rows').innerHTML = Object.entries(qtys)
+    .filter(([id, q]) => q > 0)
+    .map(([id, q]) => `<div class="order-row"><span>${q}× ${typeMap[id].name}</span><span>Rs. ${(q * typeMap[id].price).toLocaleString()}</span></div>`)
+    .join('');
+  document.getElementById('fee-amt').textContent = 'Rs. ' + fee.toLocaleString();
+  document.getElementById('total-amt').textContent = 'Rs. ' + total.toLocaleString();
+
+  const btn = document.getElementById('proceed-btn');
+  if (has) {
+    btn.removeAttribute('data-disabled');
+    const items = Object.entries(qtys)
+      .filter(([id, q]) => q > 0)
+      .map(([id, q]) => ({ ticket_type_id: id, quantity: q }));
+    const p = new URLSearchParams({ event_slug: slug, total, fee, items: JSON.stringify(items) });
+    btn.href = 'cart.html?' + p.toString();
+  } else {
+    btn.setAttribute('data-disabled', 'true');
+    btn.href = '#';
+  }
+}
+
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(e => e.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+fetch('/api/event?slug=' + slug)
+  .then(r => r.json())
+  .then(data => {
+    if (data.error) { document.getElementById('event-info').innerHTML = '<p style="color:rgba(255,255,255,0.6)">Event not found.</p>'; return; }
+    renderEvent(data);
+  })
+  .catch(() => {
+    document.getElementById('event-info').innerHTML = '<p style="color:rgba(255,255,255,0.6)">Failed to load event.</p>';
+  });
+</script>
+</body>
+</html>

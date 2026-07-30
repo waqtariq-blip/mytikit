@@ -14,7 +14,6 @@ nav { background: #fff; border-bottom: 1px solid #e8e8e8; display: flex; align-i
 .nav-logo-text { font-size: 18px; font-weight: 700; color: #111; }
 .nav-logo-tld { color: #888; font-weight: 400; }
 .nav-back { color: #555; font-size: 14px; text-decoration: none; flex: 1; }
-.nav-back:hover { color: #06291A; }
 .btn-mytickets { background: #06291A; color: #fff; font-size: 14px; font-weight: 600; padding: 9px 18px; border-radius: 8px; text-decoration: none; margin-left: auto; }
 .steps-bar { background: #fff; border-bottom: 1px solid #e8e8e8; padding: 0 40px; display: flex; }
 .step { display: flex; align-items: center; gap: 8px; padding: 14px 20px; font-size: 13px; color: #bbb; border-bottom: 2px solid transparent; }
@@ -32,7 +31,7 @@ nav { background: #fff; border-bottom: 1px solid #e8e8e8; display: flex; align-i
 .amount-val { font-size: 44px; font-weight: 800; color: #06291A; letter-spacing: -1px; }
 .amount-note { font-size: 13px; color: #888; margin-top: 6px; }
 .card { background: #fff; border: 1px solid #e8e8e8; border-radius: 14px; padding: 24px; margin-bottom: 20px; }
-.card-title { font-size: 15px; font-weight: 700; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+.card-title { font-size: 15px; font-weight: 700; margin-bottom: 18px; }
 .bank-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
 .bank-row:last-of-type { border-bottom: none; }
 .bank-field-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #aaa; font-weight: 700; margin-bottom: 3px; }
@@ -48,7 +47,7 @@ input[type=text] { width: 100%; border: 1.5px solid #e0e0e0; border-radius: 8px;
 input[type=text]:focus { border-color: #06291A; }
 input.err { border-color: #e53e3e; }
 .btn-submit { display: block; width: 100%; background: #06291A; color: #fff; font-size: 16px; font-weight: 700; padding: 15px; border-radius: 9px; border: none; cursor: pointer; font-family: inherit; margin-top: 14px; }
-.btn-submit:hover { background: #0a3d26; }
+.btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 footer { background: #06291A; color: #6b9e80; padding: 28px 40px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-top: 48px; }
 .footer-logo { font-size: 16px; font-weight: 700; color: #fff; }
 .footer-copy { color: #4a7a5a; font-size: 12px; width: 100%; }
@@ -56,7 +55,7 @@ footer { background: #06291A; color: #6b9e80; padding: 28px 40px; display: flex;
 </style>
 </head>
 <body>
-<div class="util-bar"><span class="util-dot"></span><span>2 Events on sale · Karachi</span></div>
+<div class="util-bar"><span class="util-dot"></span><span>mytikit.pk</span></div>
 <nav>
   <a href="index.html" class="nav-logo"><svg width="26" height="20" viewBox="0 0 28 22" fill="none"><rect x="0" y="4" width="4" height="14" rx="2" fill="#06291A"/><rect x="6" y="0" width="4" height="22" rx="2" fill="#06291A"/><rect x="12" y="6" width="4" height="10" rx="2" fill="#06291A"/><rect x="18" y="2" width="4" height="18" rx="2" fill="#06291A"/><rect x="24" y="7" width="4" height="8" rx="2" fill="#06291A"/></svg><span class="nav-logo-text">mytikit<span class="nav-logo-tld">.pk</span></span></a>
   <a href="javascript:history.back()" class="nav-back">← Back</a>
@@ -98,35 +97,66 @@ footer { background: #06291A; color: #6b9e80; padding: 28px 40px; display: flex;
     <div class="ref-title">Transaction reference</div>
     <div class="ref-desc">Enter the transaction ID from your bank app. This is how we match your payment to your booking.</div>
     <input type="text" id="txn-ref" placeholder="e.g. TXN-20250614-XXXXXXX">
-    <button class="btn-submit" onclick="submitPayment()">I've completed the transfer →</button>
+    <button class="btn-submit" id="submit-btn" onclick="submitPayment()">I've completed the transfer →</button>
   </div>
 </div>
 <footer><div class="footer-logo">mytikit.pk</div><div class="footer-copy">© 2025 mytikit · Made in Karachi 🇵🇰</div></footer>
 <script>
 const params = new URLSearchParams(window.location.search);
-const total = parseInt(params.get('total')||0);
-document.getElementById('amount-display').textContent = 'Rs. '+total.toLocaleString();
+const total = parseInt(params.get('total') || 0);
+const bookingRef = params.get('booking_ref');
+
+document.getElementById('amount-display').textContent = 'Rs. ' + total.toLocaleString();
+
 let secs = 600;
 const timerEl = document.getElementById('timer');
-const iv = setInterval(()=>{
+const iv = setInterval(() => {
   secs--;
-  const m = String(Math.floor(secs/60)).padStart(2,'0');
-  const s = String(secs%60).padStart(2,'0');
-  timerEl.textContent = m+':'+s;
-  if(secs<=60) timerEl.classList.add('urgent');
-  if(secs<=0) clearInterval(iv);
-},1000);
-function copyText(text,btn){
-  navigator.clipboard.writeText(text).then(()=>{
-    const o=btn.textContent; btn.textContent='Copied!'; btn.style.color='#06291A';
-    setTimeout(()=>{btn.textContent=o;btn.style.color='';},2000);
+  const m = String(Math.floor(secs / 60)).padStart(2, '0');
+  const s = String(secs % 60).padStart(2, '0');
+  timerEl.textContent = m + ':' + s;
+  if (secs <= 60) timerEl.classList.add('urgent');
+  if (secs <= 0) clearInterval(iv);
+}, 1000);
+
+function copyText(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    const o = btn.textContent;
+    btn.textContent = 'Copied!';
+    btn.style.color = '#06291A';
+    setTimeout(() => { btn.textContent = o; btn.style.color = ''; }, 2000);
   });
 }
-function submitPayment(){
-  const ref=document.getElementById('txn-ref').value.trim();
-  if(!ref){document.getElementById('txn-ref').classList.add('err');return;}
-  const p=new URLSearchParams(params); p.set('ref',ref);
-  window.location.href='confirmation.html?'+p.toString();
+
+async function submitPayment() {
+  const ref = document.getElementById('txn-ref').value.trim();
+  if (!ref) { document.getElementById('txn-ref').classList.add('err'); return; }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  try {
+    const res = await fetch('/api/submit-payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ booking_ref: bookingRef, txn_ref: ref })
+    });
+
+    const data = await res.json();
+    if (!res.ok || data.error) {
+      btn.disabled = false;
+      btn.textContent = 'I\'ve completed the transfer →';
+      alert(data.error || 'Something went wrong. Please try again.');
+      return;
+    }
+
+    window.location.href = 'confirmation.html?booking_ref=' + bookingRef;
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = 'I\'ve completed the transfer →';
+    alert('Network error. Please check your connection.');
+  }
 }
 </script>
 </body>
