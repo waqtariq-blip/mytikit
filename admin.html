@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>mytikit — Admin</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f9f7; color: #111; min-height: 100vh; }
+
+/* ── LOGIN ── */
+.login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.login-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 16px; padding: 40px; width: 360px; text-align: center; }
+.login-logo { font-size: 22px; font-weight: 800; color: #06291A; margin-bottom: 6px; }
+.login-label { font-size: 13px; color: #888; margin-bottom: 28px; }
+.login-input { width: 100%; border: 1.5px solid #e0e0e0; border-radius: 8px; padding: 12px 14px; font-size: 15px; font-family: inherit; outline: none; margin-bottom: 12px; }
+.login-input:focus { border-color: #06291A; }
+.login-btn { width: 100%; background: #06291A; color: #fff; border: none; border-radius: 8px; padding: 13px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.login-btn:hover { background: #0a3d26; }
+.login-error { font-size: 13px; color: #e53e3e; margin-top: 10px; display: none; }
+
+/* ── DASHBOARD ── */
+.dashboard { display: none; }
+nav { background: #06291A; padding: 0 32px; height: 56px; display: flex; align-items: center; justify-content: space-between; }
+.nav-logo { font-size: 18px; font-weight: 800; color: #fff; }
+.nav-meta { font-size: 12px; color: #6b9e80; display: flex; align-items: center; gap: 16px; }
+.nav-refresh { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 13px; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-family: inherit; }
+.nav-refresh:hover { background: rgba(255,255,255,0.2); }
+.nav-signout { color: #6b9e80; font-size: 13px; cursor: pointer; }
+.nav-signout:hover { color: #fff; }
+
+.main { max-width: 1200px; margin: 0 auto; padding: 32px; }
+
+/* ── STATS ── */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+.stat-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 20px; }
+.stat-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin-bottom: 8px; }
+.stat-val { font-size: 28px; font-weight: 800; color: #111; letter-spacing: -0.5px; }
+.stat-val.green { color: #06291A; }
+.stat-val.amber { color: #c4731a; }
+.stat-sub { font-size: 12px; color: #888; margin-top: 4px; }
+
+/* ── INVENTORY ── */
+.section-title { font-size: 18px; font-weight: 800; margin-bottom: 16px; }
+.inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 28px; }
+.inv-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 10px; padding: 16px; }
+.inv-event { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #06291A; font-weight: 700; margin-bottom: 4px; }
+.inv-tier { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+.inv-bar-wrap { background: #f0f0f0; border-radius: 100px; height: 6px; margin-bottom: 8px; overflow: hidden; }
+.inv-bar { background: #06291A; height: 100%; border-radius: 100px; transition: width 0.3s; }
+.inv-bar.warn { background: #c4731a; }
+.inv-bar.danger { background: #e53e3e; }
+.inv-numbers { display: flex; justify-content: space-between; font-size: 12px; color: #888; }
+.inv-numbers strong { color: #111; }
+
+/* ── FILTERS ── */
+.toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.filter-btn { padding: 7px 16px; border-radius: 100px; font-size: 13px; border: 1px solid #e0e0e0; cursor: pointer; background: #fff; color: #555; font-family: inherit; }
+.filter-btn.active { background: #06291A; color: #fff; border-color: #06291A; }
+.filter-btn:hover:not(.active) { background: #f5f5f5; }
+.search-box { flex: 1; min-width: 200px; border: 1.5px solid #e0e0e0; border-radius: 8px; padding: 8px 14px; font-size: 14px; font-family: inherit; outline: none; }
+.search-box:focus { border-color: #06291A; }
+.export-btn { background: #fff; border: 1.5px solid #e0e0e0; color: #555; font-size: 13px; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-family: inherit; }
+.export-btn:hover { border-color: #06291A; color: #06291A; }
+
+/* ── TABLE ── */
+.table-wrap { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+th { background: #f9f9f7; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #888; padding: 12px 16px; text-align: left; border-bottom: 1px solid #e8e8e8; white-space: nowrap; }
+td { padding: 14px 16px; font-size: 13px; border-bottom: 1px solid #f5f5f5; vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #fafafa; }
+.booking-ref { font-family: monospace; font-weight: 700; font-size: 13px; color: #06291A; }
+.name-cell { font-weight: 600; }
+.phone-cell { color: #555; }
+.amount-cell { font-weight: 700; }
+.items-cell { color: #555; font-size: 12px; }
+
+/* STATUS BADGES */
+.badge { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase; }
+.badge.pending_payment  { background: #f0f0f0; color: #888; }
+.badge.payment_submitted { background: #fef3e2; color: #c4731a; }
+.badge.verified          { background: #eaf4ed; color: #06291A; }
+.badge.cancelled         { background: #fdf2f2; color: #e53e3e; }
+
+.verify-btn { background: #06291A; color: #fff; border: none; border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; }
+.verify-btn:hover { background: #0a3d26; }
+.verify-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.empty-row td { text-align: center; color: #888; padding: 40px; }
+.loading-row td { text-align: center; color: #888; padding: 40px; }
+
+/* ── TOAST ── */
+.toast { position: fixed; bottom: 24px; right: 24px; background: #06291A; color: #fff; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; transform: translateY(80px); opacity: 0; transition: all 0.3s; z-index: 999; }
+.toast.show { transform: translateY(0); opacity: 1; }
+
+@media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .main { padding: 20px; } nav { padding: 0 20px; } }
+@media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr 1fr; } table { font-size: 12px; } th, td { padding: 10px 12px; } }
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">mytikit.pk</div>
+    <div class="login-label">Admin Dashboard</div>
+    <input type="password" class="login-input" id="pwd-input" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')login()">
+    <button class="login-btn" onclick="login()">Sign in</button>
+    <div class="login-error" id="login-error">Incorrect password</div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard">
+  <nav>
+    <div class="nav-logo">mytikit admin</div>
+    <div class="nav-meta">
+      <span id="last-updated">—</span>
+      <button class="nav-refresh" onclick="loadData()">↻ Refresh</button>
+      <span class="nav-signout" onclick="signOut()">Sign out</span>
+    </div>
+  </nav>
+
+  <div class="main">
+
+    <!-- STATS -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total bookings</div>
+        <div class="stat-val" id="stat-total">—</div>
+        <div class="stat-sub">All time</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Verified revenue</div>
+        <div class="stat-val green" id="stat-revenue">—</div>
+        <div class="stat-sub">Payments confirmed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pending verification</div>
+        <div class="stat-val amber" id="stat-pending">—</div>
+        <div class="stat-sub">Awaiting confirmation</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Today's bookings</div>
+        <div class="stat-val" id="stat-today">—</div>
+        <div class="stat-sub" id="stat-today-rev">—</div>
+      </div>
+    </div>
+
+    <!-- INVENTORY -->
+    <div class="section-title">Ticket inventory</div>
+    <div class="inventory-grid" id="inventory-grid">
+      <div style="color:#888;font-size:14px;">Loading...</div>
+    </div>
+
+    <!-- BOOKINGS TABLE -->
+    <div class="section-title">Bookings</div>
+    <div class="toolbar">
+      <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+      <button class="filter-btn" onclick="setFilter('payment_submitted', this)">Needs verification</button>
+      <button class="filter-btn" onclick="setFilter('verified', this)">Verified</button>
+      <button class="filter-btn" onclick="setFilter('pending_payment', this)">Pending payment</button>
+      <input type="text" class="search-box" id="search-box" placeholder="Search name, phone, ref..." oninput="renderTable()">
+      <button class="export-btn" onclick="exportCSV()">Export CSV</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Ref</th>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Event</th>
+            <th>Tickets</th>
+            <th>Amount</th>
+            <th>Txn ID</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="bookings-tbody">
+          <tr class="loading-row"><td colspan="10">Loading bookings...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let allBookings = [];
+let currentFilter = 'all';
+let adminPassword = '';
+
+// ── AUTH ────────────────────────────────────────────
+async function login() {
+  const pwd = document.getElementById('pwd-input').value.trim();
+  if (!pwd) return;
+
+  const res = await fetch('/api/admin', {
+    headers: { 'Authorization': 'Bearer ' + pwd }
+  });
+
+  if (res.status === 401) {
+    document.getElementById('login-error').style.display = 'block';
+    return;
+  }
+
+  adminPassword = pwd;
+  sessionStorage.setItem('myt_admin_pwd', pwd);
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  const data = await res.json();
+  processData(data);
+}
+
+function signOut() {
+  sessionStorage.removeItem('myt_admin_pwd');
+  adminPassword = '';
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('pwd-input').value = '';
+}
+
+// ── DATA ─────────────────────────────────────────────
+async function loadData() {
+  if (!adminPassword) return;
+  try {
+    const res = await fetch('/api/admin', {
+      headers: { 'Authorization': 'Bearer ' + adminPassword }
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    processData(data);
+    document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+  } catch (e) {}
+}
+
+function processData({ bookings, inventory }) {
+  allBookings = bookings || [];
+  renderStats();
+  renderInventory(inventory || []);
+  renderTable();
+}
+
+// ── STATS ─────────────────────────────────────────────
+function renderStats() {
+  const total = allBookings.length;
+  const verified = allBookings.filter(b => b.status === 'verified');
+  const pending = allBookings.filter(b => b.status === 'payment_submitted');
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const today = allBookings.filter(b => b.created_at?.slice(0, 10) === todayStr);
+  const todayRev = today.reduce((s, b) => s + (b.total_amount || 0), 0);
+  const verifiedRev = verified.reduce((s, b) => s + (b.total_amount || 0), 0);
+
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-revenue').textContent = 'Rs. ' + verifiedRev.toLocaleString();
+  document.getElementById('stat-pending').textContent = pending.length;
+  document.getElementById('stat-today').textContent = today.length;
+  document.getElementById('stat-today-rev').textContent = todayRev > 0 ? 'Rs. ' + todayRev.toLocaleString() : 'None today';
+}
+
+// ── INVENTORY ─────────────────────────────────────────
+function renderInventory(inventory) {
+  const grid = document.getElementById('inventory-grid');
+  if (!inventory.length) { grid.innerHTML = '<div style="color:#888;font-size:14px;">No inventory data</div>'; return; }
+
+  grid.innerHTML = inventory.map(i => {
+    const pct = i.total_capacity > 0 ? Math.round((i.sold_count / i.total_capacity) * 100) : 0;
+    const barClass = pct >= 90 ? 'danger' : pct >= 70 ? 'warn' : '';
+    return `
+      <div class="inv-card">
+        <div class="inv-event">${i.event_name}</div>
+        <div class="inv-tier">${i.ticket_name} — Rs. ${i.price.toLocaleString()}</div>
+        <div class="inv-bar-wrap"><div class="inv-bar ${barClass}" style="width:${pct}%"></div></div>
+        <div class="inv-numbers">
+          <span><strong>${i.sold_count}</strong> sold</span>
+          <span><strong>${i.available}</strong> left</span>
+          <span>${pct}%</span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ── TABLE ─────────────────────────────────────────────
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+}
+
+function renderTable() {
+  const search = (document.getElementById('search-box')?.value || '').toLowerCase();
+  let rows = allBookings;
+
+  if (currentFilter !== 'all') rows = rows.filter(b => b.status === currentFilter);
+  if (search) rows = rows.filter(b =>
+    (b.fname + ' ' + b.lname).toLowerCase().includes(search) ||
+    (b.phone || '').includes(search) ||
+    (b.booking_ref || '').toLowerCase().includes(search) ||
+    (b.email || '').toLowerCase().includes(search)
+  );
+
+  const tbody = document.getElementById('bookings-tbody');
+  if (!rows.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="10">No bookings found</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = rows.map(b => {
+    const items = (b.items || []).map(i => `${i.quantity}× ${i.ticket_name}`).join(', ');
+    const date = b.created_at ? new Date(b.created_at).toLocaleDateString('en-PK', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : '—';
+    const canVerify = b.status === 'payment_submitted';
+    return `
+      <tr>
+        <td><span class="booking-ref">${b.booking_ref}</span></td>
+        <td><span class="name-cell">${b.fname} ${b.lname}</span></td>
+        <td><span class="phone-cell">${b.phone}</span></td>
+        <td>${b.event_name}</td>
+        <td><span class="items-cell">${items}</span></td>
+        <td><span class="amount-cell">Rs. ${(b.total_amount || 0).toLocaleString()}</span></td>
+        <td style="font-size:11px;color:#888;max-width:140px;overflow:hidden;text-overflow:ellipsis;">${b.txn_ref || '—'}</td>
+        <td><span class="badge ${b.status}">${b.status?.replace('_', ' ')}</span></td>
+        <td style="white-space:nowrap;font-size:12px;color:#888;">${date}</td>
+        <td>
+          ${canVerify
+            ? `<button class="verify-btn" id="vbtn-${b.booking_ref}" onclick="verifyBooking('${b.booking_ref}')">✓ Verify</button>`
+            : '—'}
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+// ── VERIFY ────────────────────────────────────────────
+async function verifyBooking(ref) {
+  const btn = document.getElementById('vbtn-' + ref);
+  if (btn) { btn.disabled = true; btn.textContent = '...'; }
+
+  try {
+    const res = await fetch('/api/admin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminPassword },
+      body: JSON.stringify({ action: 'verify', booking_ref: ref })
+    });
+    const data = await res.json();
+    if (data.success) {
+      const booking = allBookings.find(b => b.booking_ref === ref);
+      if (booking) booking.status = 'verified';
+      renderStats();
+      renderTable();
+      showToast('✓ ' + ref + ' marked as verified');
+    } else {
+      if (btn) { btn.disabled = false; btn.textContent = '✓ Verify'; }
+      showToast('Error: ' + (data.error || 'Failed'));
+    }
+  } catch (e) {
+    if (btn) { btn.disabled = false; btn.textContent = '✓ Verify'; }
+    showToast('Network error');
+  }
+}
+
+// ── EXPORT CSV ────────────────────────────────────────
+function exportCSV() {
+  const headers = ['Ref', 'First Name', 'Last Name', 'Phone', 'Email', 'CNIC', 'Event', 'Tickets', 'Total (Rs.)', 'Txn Ref', 'Status', 'Date'];
+  const rows = allBookings.map(b => [
+    b.booking_ref,
+    b.fname, b.lname,
+    b.phone, b.email, b.cnic,
+    b.event_name,
+    (b.items || []).map(i => `${i.quantity}x${i.ticket_name}`).join(' + '),
+    b.total_amount,
+    b.txn_ref || '',
+    b.status,
+    b.created_at ? new Date(b.created_at).toLocaleString() : ''
+  ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(','));
+
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'mytikit-bookings-' + new Date().toISOString().slice(0, 10) + '.csv';
+  a.click();
+}
+
+// ── TOAST ─────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── INIT ──────────────────────────────────────────────
+const savedPwd = sessionStorage.getItem('myt_admin_pwd');
+if (savedPwd) {
+  adminPassword = savedPwd;
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  loadData();
+}
+
+// Auto-refresh every 60 seconds
+setInterval(() => { if (adminPassword) loadData(); }, 60000);
+</script>
+</body>
+</html>
