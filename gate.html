@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Gate Scanner — mytikit</title>
-<!-- ZXing QR library for camera scanning -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/zxing-js/0.19.1/zxing.min.js"></script>
+<!-- jsQR — reliable browser QR scanning -->
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #06291A; min-height: 100vh; display: flex; flex-direction: column; }
@@ -126,8 +126,10 @@ video { width: 100%; height: 100%; object-fit: cover; display: block; }
 let stats = { checked: 0, rejected: 0, total: 0 };
 let currentMode = 'camera';
 let cameraRunning = false;
-let codeReader = null;
 let scanning = false;
+let rafId = null;
+let canvas = document.createElement('canvas');
+let ctx2d = canvas.getContext('2d');
 
 // ── MODE SWITCHING ─────────────────────────────────────────────────
 function setMode(mode) {
@@ -151,65 +153,58 @@ async function toggleCamera() {
 async function startCamera() {
   const statusEl = document.getElementById('camera-status');
   const btn = document.getElementById('camera-btn');
-
-  statusEl.textContent = 'Requesting camera access...';
+  statusEl.textContent = 'Requesting camera...';
   btn.textContent = '⏳ Starting...';
   btn.disabled = true;
 
   try {
-    // Use ZXing if available, otherwise fallback to native
-    if (typeof ZXing !== 'undefined') {
-      codeReader = new ZXing.BrowserQRCodeReader();
-      const devices = await codeReader.listVideoInputDevices();
-      // Prefer back camera
-      const backCamera = devices.find(d => d.label.toLowerCase().includes('back') || d.label.toLowerCase().includes('rear') || d.label.toLowerCase().includes('environment'));
-      const deviceId = backCamera ? backCamera.deviceId : (devices[devices.length - 1]?.deviceId);
-
-      await codeReader.decodeFromVideoDevice(deviceId, 'preview', (result, err) => {
-        if (result && !scanning) {
-          scanning = true;
-          checkInCode(result.getText());
-        }
-      });
-
-      cameraRunning = true;
-      statusEl.textContent = 'Point camera at QR code';
-      btn.textContent = '⏹ Stop camera';
-      btn.className = 'btn-camera stop';
-      btn.disabled = false;
-    } else {
-      // Fallback: native getUserMedia
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
-      });
-      const video = document.getElementById('preview');
-      video.srcObject = stream;
-      await video.play();
-      cameraRunning = true;
-      statusEl.textContent = 'Camera active — use a hardware scanner or type code';
-      btn.textContent = '⏹ Stop camera';
-      btn.className = 'btn-camera stop';
-      btn.disabled = false;
-    }
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
+    });
+    const video = document.getElementById('preview');
+    video.srcObject = stream;
+    await video.play();
+    cameraRunning = true;
+    scanning = false;
+    statusEl.textContent = 'Point at QR code — scanning...';
+    btn.textContent = '⏹ Stop camera';
+    btn.className = 'btn-camera stop';
+    btn.disabled = false;
+    tick();
   } catch (err) {
-    statusEl.textContent = 'Camera access denied. Use manual entry.';
+    statusEl.textContent = 'Camera denied — use manual entry instead.';
     btn.textContent = '▶ Try again';
     btn.disabled = false;
     btn.className = 'btn-camera';
   }
 }
 
-function stopCamera() {
-  if (codeReader) {
-    try { codeReader.reset(); } catch(e) {}
-    codeReader = null;
+function tick() {
+  if (!cameraRunning) return;
+  const video = document.getElementById('preview');
+  if (video.readyState === video.HAVE_ENOUGH_DATA) {
+    canvas.width  = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx2d.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imageData = ctx2d.getImageData(0, 0, canvas.width, canvas.height);
+    const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'dontInvert' });
+    if (code && !scanning) {
+      scanning = true;
+      checkInCode(code.data);
+      return;
+    }
   }
+  rafId = requestAnimationFrame(tick);
+}
+
+function stopCamera() {
+  cameraRunning = false;
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
   const video = document.getElementById('preview');
   if (video.srcObject) {
     video.srcObject.getTracks().forEach(t => t.stop());
     video.srcObject = null;
   }
-  cameraRunning = false;
   scanning = false;
   document.getElementById('camera-status').textContent = 'Tap below to start camera';
   document.getElementById('camera-btn').textContent = '▶ Start camera';
