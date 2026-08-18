@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Gate Scanner — mytikit</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #06291A; min-height: 100vh; display: flex; flex-direction: column; }
+.gate-nav { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; }
+.gate-logo { font-size: 16px; font-weight: 800; color: #fff; }
+.gate-label { font-size: 12px; color: #6b9e80; }
+.gate-main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
+
+/* INPUT AREA */
+.scan-box { background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 16px; padding: 28px; width: 100%; max-width: 380px; margin-bottom: 20px; }
+.scan-label { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #6b9e80; margin-bottom: 12px; }
+.scan-input { width: 100%; background: rgba(255,255,255,0.1); border: 1.5px solid rgba(255,255,255,0.2); border-radius: 10px; padding: 14px 16px; font-size: 18px; font-weight: 700; font-family: monospace; color: #fff; outline: none; text-transform: uppercase; letter-spacing: 2px; }
+.scan-input::placeholder { color: rgba(255,255,255,0.3); font-weight: 400; letter-spacing: 0; font-family: -apple-system, sans-serif; font-size: 15px; }
+.scan-input:focus { border-color: #4ade80; }
+.scan-btn { width: 100%; margin-top: 14px; background: #fff; color: #06291A; font-size: 16px; font-weight: 800; padding: 15px; border-radius: 10px; border: none; cursor: pointer; font-family: inherit; }
+.scan-btn:active { opacity: 0.85; }
+.scan-hint { text-align: center; font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 10px; }
+
+/* RESULT */
+.result-card { width: 100%; max-width: 380px; border-radius: 16px; padding: 28px; text-align: center; display: none; animation: pop 0.3s ease; }
+@keyframes pop { 0%{transform:scale(0.9);opacity:0} 100%{transform:scale(1);opacity:1} }
+.result-card.valid   { background: #eaf4ed; border: 2px solid #4ade80; }
+.result-card.invalid { background: #fdf2f2; border: 2px solid #f87171; }
+.result-card.used    { background: #fef3e2; border: 2px solid #f59e0b; }
+.result-icon { font-size: 52px; margin-bottom: 12px; }
+.result-status { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+.result-card.valid .result-status   { color: #06291A; }
+.result-card.invalid .result-status { color: #dc2626; }
+.result-card.used .result-status    { color: #d97706; }
+.result-name { font-size: 20px; font-weight: 700; color: #111; margin-bottom: 4px; }
+.result-detail { font-size: 14px; color: #666; margin-bottom: 4px; }
+.result-code { font-size: 12px; font-family: monospace; color: #aaa; margin-top: 8px; }
+.result-plus { display: inline-block; background: #06291A; color: #fff; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 100px; margin-top: 10px; }
+.result-table { display: inline-block; background: #f0f0f0; color: #333; font-size: 13px; font-weight: 700; padding: 4px 12px; border-radius: 100px; margin-top: 6px; }
+.next-btn { width: 100%; margin-top: 18px; background: #06291A; color: #fff; font-size: 15px; font-weight: 700; padding: 13px; border-radius: 10px; border: none; cursor: pointer; font-family: inherit; }
+.next-btn.light { background: #fff; color: #06291A; }
+
+/* STATS BAR */
+.stats-bar { background: rgba(0,0,0,0.2); padding: 12px 20px; display: flex; justify-content: center; gap: 32px; }
+.stat { text-align: center; }
+.stat-n { font-size: 22px; font-weight: 800; color: #fff; }
+.stat-l { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #6b9e80; }
+</style>
+</head>
+<body>
+<div class="gate-nav">
+  <div class="gate-logo">mytikit</div>
+  <div class="gate-label">Gate Scanner</div>
+</div>
+
+<div class="gate-main">
+  <div class="scan-box" id="scan-box">
+    <div class="scan-label">Enter or scan invite code</div>
+    <input type="text" class="scan-input" id="code-input" placeholder="INV-XXXXXX" maxlength="10" autocomplete="off" autocorrect="off" spellcheck="false" onkeydown="if(event.key==='Enter')checkIn()">
+    <button class="scan-btn" onclick="checkIn()">Check in guest</button>
+    <div class="scan-hint">Type the code or use a QR scanner</div>
+  </div>
+
+  <div class="result-card" id="result-card">
+    <div class="result-icon" id="result-icon"></div>
+    <div class="result-status" id="result-status"></div>
+    <div class="result-name" id="result-name"></div>
+    <div class="result-detail" id="result-detail"></div>
+    <div class="result-code" id="result-code"></div>
+    <div id="result-extras"></div>
+    <button class="next-btn" id="next-btn" onclick="reset()">Scan next guest</button>
+  </div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat"><div class="stat-n" id="stat-checked">0</div><div class="stat-l">Checked in</div></div>
+  <div class="stat"><div class="stat-n" id="stat-rejected">0</div><div class="stat-l">Rejected</div></div>
+  <div class="stat"><div class="stat-n" id="stat-total">0</div><div class="stat-l">Total scans</div></div>
+</div>
+
+<script>
+let stats = { checked: 0, rejected: 0, total: 0 };
+
+async function checkIn() {
+  const code = document.getElementById('code-input').value.trim().toUpperCase();
+  if (!code) return;
+  if (code.length < 6) { flash('Enter a valid code'); return; }
+
+  const btn = document.querySelector('.scan-btn');
+  btn.textContent = 'Checking...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/scan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code })
+    });
+    const data = await res.json();
+    stats.total++;
+    showResult(data);
+  } catch (e) {
+    btn.textContent = 'Check in guest';
+    btn.disabled = false;
+    flash('Network error — try again');
+  }
+}
+
+function showResult(data) {
+  document.getElementById('scan-box').style.display = 'none';
+  const card = document.getElementById('result-card');
+  card.style.display = 'block';
+
+  if (data.valid) {
+    stats.checked++;
+    card.className = 'result-card valid';
+    document.getElementById('result-icon').textContent = '✓';
+    document.getElementById('result-status').textContent = 'Valid — Welcome!';
+    document.getElementById('result-name').textContent = data.guest_name;
+    document.getElementById('result-detail').textContent = data.event_name || '';
+    document.getElementById('result-code').textContent = data.invite_code;
+    document.getElementById('result-extras').innerHTML = `
+      ${data.plus_one ? '<div class="result-plus">+1 Guest included</div>' : ''}
+      ${data.table_number ? `<div class="result-table">Table ${data.table_number}</div>` : ''}
+    `;
+    document.getElementById('next-btn').className = 'next-btn';
+    playBeep(true);
+  } else if (data.already_used) {
+    stats.rejected++;
+    card.className = 'result-card used';
+    document.getElementById('result-icon').textContent = '⚠';
+    document.getElementById('result-status').textContent = 'Already checked in';
+    document.getElementById('result-name').textContent = data.guest_name || '';
+    document.getElementById('result-detail').textContent = data.checked_in_at
+      ? 'Checked in at ' + new Date(data.checked_in_at).toLocaleTimeString()
+      : '';
+    document.getElementById('result-code').textContent = '';
+    document.getElementById('result-extras').innerHTML = '';
+    document.getElementById('next-btn').className = 'next-btn light';
+    playBeep(false);
+  } else {
+    stats.rejected++;
+    card.className = 'result-card invalid';
+    document.getElementById('result-icon').textContent = '✕';
+    document.getElementById('result-status').textContent = 'Invalid invitation';
+    document.getElementById('result-name').textContent = data.reason || 'Not found';
+    document.getElementById('result-detail').textContent = 'Do not allow entry';
+    document.getElementById('result-code').textContent = '';
+    document.getElementById('result-extras').innerHTML = '';
+    document.getElementById('next-btn').className = 'next-btn light';
+    playBeep(false);
+  }
+
+  updateStats();
+}
+
+function reset() {
+  document.getElementById('result-card').style.display = 'none';
+  document.getElementById('scan-box').style.display = 'block';
+  document.getElementById('code-input').value = '';
+  document.querySelector('.scan-btn').textContent = 'Check in guest';
+  document.querySelector('.scan-btn').disabled = false;
+  document.getElementById('code-input').focus();
+}
+
+function updateStats() {
+  document.getElementById('stat-checked').textContent = stats.checked;
+  document.getElementById('stat-rejected').textContent = stats.rejected;
+  document.getElementById('stat-total').textContent = stats.total;
+}
+
+function flash(msg) {
+  const hint = document.querySelector('.scan-hint');
+  hint.textContent = msg;
+  hint.style.color = '#f87171';
+  setTimeout(() => { hint.textContent = 'Type the code or use a QR scanner'; hint.style.color = ''; }, 2000);
+}
+
+function playBeep(success) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = success ? 880 : 220;
+    o.type = success ? 'sine' : 'square';
+    g.gain.setValueAtTime(0.3, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    o.start(ctx.currentTime);
+    o.stop(ctx.currentTime + 0.4);
+  } catch(e) {}
+}
+
+document.getElementById('code-input').focus();
+</script>
+</body>
+</html>

@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invitations — mytikit Admin</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f9f7; color: #111; min-height: 100vh; }
+
+/* LOGIN */
+.login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.login-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 14px; padding: 36px; width: 340px; text-align: center; }
+.login-logo { font-size: 20px; font-weight: 800; color: #06291A; margin-bottom: 4px; }
+.login-sub { font-size: 13px; color: #888; margin-bottom: 24px; }
+input[type=password] { width: 100%; border: 1.5px solid #e0e0e0; border-radius: 8px; padding: 11px 14px; font-size: 15px; font-family: inherit; outline: none; margin-bottom: 10px; }
+input[type=password]:focus { border-color: #06291A; }
+.btn-green { width: 100%; background: #06291A; color: #fff; border: none; border-radius: 8px; padding: 13px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.btn-green:hover { background: #0a3d26; }
+.btn-green:disabled { opacity: 0.5; cursor: not-allowed; }
+.login-err { font-size: 13px; color: #e53e3e; margin-top: 8px; display: none; }
+
+/* NAV */
+nav { background: #06291A; padding: 0 32px; height: 56px; display: flex; align-items: center; justify-content: space-between; }
+.nav-logo { font-size: 17px; font-weight: 800; color: #fff; }
+.nav-right { display: flex; align-items: center; gap: 16px; }
+.nav-tag { font-size: 12px; color: #6b9e80; }
+.btn-signout { background: none; border: 1px solid rgba(255,255,255,0.2); color: #a8c4b0; font-size: 12px; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-family: inherit; }
+.btn-signout:hover { color: #fff; }
+
+/* MAIN */
+.main { max-width: 1000px; margin: 0 auto; padding: 32px; }
+
+/* EVENT SELECTOR */
+.event-bar { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.event-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #888; white-space: nowrap; }
+select { border: 1.5px solid #e0e0e0; border-radius: 8px; padding: 9px 14px; font-size: 14px; font-family: inherit; outline: none; flex: 1; min-width: 200px; }
+select:focus { border-color: #06291A; }
+
+/* STATS */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+.stat { background: #fff; border: 1px solid #e8e8e8; border-radius: 10px; padding: 16px; }
+.stat-n { font-size: 26px; font-weight: 800; color: #111; }
+.stat-n.green { color: #06291A; }
+.stat-n.amber { color: #c4731a; }
+.stat-l { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin-top: 4px; }
+
+/* ADD GUEST FORM */
+.add-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+.card-title { font-size: 16px; font-weight: 800; margin-bottom: 18px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.form-group label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin-bottom: 5px; }
+.form-group input[type=text], .form-group input[type=email], .form-group input[type=tel] { width: 100%; border: 1.5px solid #e0e0e0; border-radius: 8px; padding: 10px 13px; font-size: 14px; font-family: inherit; outline: none; }
+.form-group input:focus { border-color: #06291A; }
+.form-bottom { display: flex; align-items: center; gap: 16px; }
+.checkbox-row { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #555; }
+.checkbox-row input { width: 16px; height: 16px; accent-color: #06291A; }
+.btn-add { background: #06291A; color: #fff; border: none; border-radius: 8px; padding: 11px 24px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; margin-left: auto; }
+.btn-add:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ACTIONS BAR */
+.actions-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+.btn-send-all { background: #06291A; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 6px; }
+.btn-send-all:disabled { opacity: 0.5; cursor: not-allowed; }
+.count-label { font-size: 13px; color: #888; margin-left: auto; }
+
+/* TABLE */
+.table-wrap { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+th { background: #f9f9f7; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #888; padding: 11px 16px; text-align: left; border-bottom: 1px solid #e8e8e8; }
+td { padding: 13px 16px; font-size: 13px; border-bottom: 1px solid #f5f5f5; vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #fafafa; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.badge.pending { background: #f0f0f0; color: #888; }
+.badge.sent { background: #eaf4ed; color: #06291A; }
+.badge.checked_in { background: #06291A; color: #fff; }
+.inv-code { font-family: monospace; font-size: 12px; font-weight: 700; color: #06291A; letter-spacing: 1px; }
+.btn-send-one { background: #06291A; color: #fff; border: none; border-radius: 6px; padding: 5px 11px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.btn-send-one:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-delete { background: #fdf2f2; color: #e53e3e; border: 1px solid #f5c6c6; border-radius: 6px; padding: 5px 10px; font-size: 12px; cursor: pointer; font-family: inherit; margin-left: 4px; }
+.empty { text-align: center; color: #888; padding: 40px; }
+
+/* TOAST */
+.toast { position: fixed; bottom: 24px; right: 24px; background: #06291A; color: #fff; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; transform: translateY(80px); opacity: 0; transition: all 0.3s; z-index: 999; }
+.toast.show { transform: translateY(0); opacity: 1; }
+
+@media (max-width: 700px) { .stats { grid-template-columns: 1fr 1fr; } .form-grid { grid-template-columns: 1fr; } .main { padding: 20px; } nav { padding: 0 20px; } }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">mytikit.pk</div>
+    <div class="login-sub">Invitations Admin</div>
+    <input type="password" id="pwd" placeholder="Admin password" onkeydown="if(event.key==='Enter')login()">
+    <button class="btn-green" onclick="login()" id="login-btn">Sign in</button>
+    <div class="login-err" id="login-err">Incorrect password</div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" style="display:none;">
+  <nav>
+    <div class="nav-logo">mytikit — Invitations</div>
+    <div class="nav-right">
+      <span class="nav-tag" id="nav-event-name">—</span>
+      <button class="btn-signout" onclick="signOut()">Sign out</button>
+    </div>
+  </nav>
+
+  <div class="main">
+
+    <!-- EVENT SELECTOR -->
+    <div class="event-bar">
+      <span class="event-label">Event</span>
+      <select id="event-select" onchange="selectEvent()">
+        <option value="">Loading events...</option>
+      </select>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats">
+      <div class="stat"><div class="stat-n" id="s-total">—</div><div class="stat-l">Total guests</div></div>
+      <div class="stat"><div class="stat-n green" id="s-sent">—</div><div class="stat-l">Invites sent</div></div>
+      <div class="stat"><div class="stat-n" id="s-checkedin">—</div><div class="stat-l">Checked in</div></div>
+      <div class="stat"><div class="stat-n amber" id="s-pending">—</div><div class="stat-l">Unsent</div></div>
+    </div>
+
+    <!-- ADD GUEST -->
+    <div class="add-card">
+      <div class="card-title">Add guest</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Full name *</label><input type="text" id="g-name" placeholder="Sara Ahmed"></div>
+        <div class="form-group"><label>Email address *</label><input type="email" id="g-email" placeholder="sara@example.com"></div>
+        <div class="form-group"><label>Phone (optional)</label><input type="tel" id="g-phone" placeholder="03xx-xxxxxxx"></div>
+        <div class="form-group"><label>Table number (optional)</label><input type="text" id="g-table" placeholder="Table 5"></div>
+      </div>
+      <div class="form-bottom">
+        <label class="checkbox-row"><input type="checkbox" id="g-plusone"> Includes +1 guest</label>
+        <button class="btn-add" id="add-btn" onclick="addGuest()">Add guest</button>
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="actions-bar">
+      <button class="btn-send-all" id="send-all-btn" onclick="sendAll()">✉ Send all unsent invitations</button>
+      <span class="count-label" id="count-label">—</span>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>+1</th>
+            <th>Table</th>
+            <th>Code</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="guests-tbody">
+          <tr><td colspan="8" class="empty">Select an event to view guests</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let adminPwd = '';
+let currentEventId = '';
+let guests = [];
+
+// ── AUTH ──────────────────────────────────────────────────────────
+async function login() {
+  const pwd = document.getElementById('pwd').value.trim();
+  if (!pwd) return;
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true; btn.textContent = 'Checking...';
+
+  const res = await fetch('/api/invitations?action=events', {
+    headers: { 'Authorization': 'Bearer ' + pwd }
+  }).catch(() => null);
+
+  if (!res || res.status === 401) {
+    document.getElementById('login-err').style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Sign in';
+    return;
+  }
+
+  adminPwd = pwd;
+  sessionStorage.setItem('myt_inv_pwd', pwd);
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  const events = await res.json();
+  populateEvents(events);
+}
+
+function signOut() {
+  sessionStorage.removeItem('myt_inv_pwd');
+  adminPwd = '';
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('pwd').value = '';
+}
+
+// ── EVENTS ────────────────────────────────────────────────────────
+function populateEvents(events) {
+  const sel = document.getElementById('event-select');
+  if (!events.length) { sel.innerHTML = '<option>No invitation events found</option>'; return; }
+  sel.innerHTML = events.map(e => `<option value="${e.id}">${e.name}</option>`).join('');
+  selectEvent();
+}
+
+async function selectEvent() {
+  currentEventId = document.getElementById('event-select').value;
+  const name = document.getElementById('event-select').options[document.getElementById('event-select').selectedIndex]?.text;
+  document.getElementById('nav-event-name').textContent = name || '—';
+  await loadGuests();
+}
+
+// ── GUESTS ────────────────────────────────────────────────────────
+async function loadGuests() {
+  if (!currentEventId) return;
+  const res = await fetch(`/api/invitations?action=list&event_id=${currentEventId}`, {
+    headers: { 'Authorization': 'Bearer ' + adminPwd }
+  });
+  guests = await res.json();
+  renderStats();
+  renderTable();
+}
+
+function renderStats() {
+  const total = guests.length;
+  const sent = guests.filter(g => g.status !== 'pending').length;
+  const checkedIn = guests.filter(g => g.status === 'checked_in').length;
+  const pending = guests.filter(g => g.status === 'pending').length;
+  document.getElementById('s-total').textContent = total;
+  document.getElementById('s-sent').textContent = sent;
+  document.getElementById('s-checkedin').textContent = checkedIn;
+  document.getElementById('s-pending').textContent = pending;
+  document.getElementById('count-label').textContent = `${total} guest${total !== 1 ? 's' : ''} · ${pending} unsent`;
+}
+
+function renderTable() {
+  const tbody = document.getElementById('guests-tbody');
+  if (!guests.length) {
+    tbody.innerHTML = '<tr><td colspan="8" class="empty">No guests yet. Add one above.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = guests.map(g => `
+    <tr>
+      <td><strong>${g.guest_name}</strong></td>
+      <td style="color:#555;">${g.guest_email}</td>
+      <td style="color:#555;">${g.guest_phone || '—'}</td>
+      <td style="text-align:center;">${g.plus_one ? '✓' : '—'}</td>
+      <td style="text-align:center;">${g.table_number || '—'}</td>
+      <td><span class="inv-code">${g.invite_code}</span></td>
+      <td><span class="badge ${g.status}">${g.status.replace('_', ' ')}</span></td>
+      <td>
+        ${g.status === 'pending'
+          ? `<button class="btn-send-one" id="sbtn-${g.invite_code}" onclick="sendOne('${g.invite_code}')">Send</button>`
+          : '<span style="font-size:12px;color:#aaa;">Sent</span>'}
+        <button class="btn-delete" onclick="deleteGuest('${g.id}')">✕</button>
+      </td>
+    </tr>`).join('');
+}
+
+// ── ADD GUEST ─────────────────────────────────────────────────────
+async function addGuest() {
+  const name  = document.getElementById('g-name').value.trim();
+  const email = document.getElementById('g-email').value.trim();
+  const phone = document.getElementById('g-phone').value.trim();
+  const table = document.getElementById('g-table').value.trim();
+  const plus  = document.getElementById('g-plusone').checked;
+
+  if (!name)  { toast('Name is required'); return; }
+  if (!email) { toast('Email is required'); return; }
+  if (!currentEventId) { toast('Select an event first'); return; }
+
+  const btn = document.getElementById('add-btn');
+  btn.disabled = true; btn.textContent = 'Adding...';
+
+  const res = await fetch('/api/invitations?action=create', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminPwd },
+    body: JSON.stringify({ event_id: currentEventId, guest_name: name, guest_email: email, guest_phone: phone || null, plus_one: plus, table_number: table || null })
+  });
+  const data = await res.json();
+  btn.disabled = false; btn.textContent = 'Add guest';
+
+  if (data.success) {
+    document.getElementById('g-name').value = '';
+    document.getElementById('g-email').value = '';
+    document.getElementById('g-phone').value = '';
+    document.getElementById('g-table').value = '';
+    document.getElementById('g-plusone').checked = false;
+    toast('Added — ' + data.invite_code);
+    await loadGuests();
+  } else {
+    toast('Error: ' + (data.error || 'Failed'));
+  }
+}
+
+// ── SEND ──────────────────────────────────────────────────────────
+async function sendOne(invite_code) {
+  const btn = document.getElementById('sbtn-' + invite_code);
+  if (btn) { btn.disabled = true; btn.textContent = '...'; }
+
+  const res = await fetch('/api/invitations?action=send', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminPwd },
+    body: JSON.stringify({ invite_code, event_id: currentEventId })
+  });
+  const data = await res.json();
+  if (data.success) { toast('✓ Invitation sent'); await loadGuests(); }
+  else { toast('Failed: ' + (data.error || 'Unknown')); if (btn) { btn.disabled = false; btn.textContent = 'Send'; } }
+}
+
+async function sendAll() {
+  const pending = guests.filter(g => g.status === 'pending').length;
+  if (!pending) { toast('No unsent invitations'); return; }
+  if (!confirm(`Send invitations to ${pending} unsent guests?`)) return;
+
+  const btn = document.getElementById('send-all-btn');
+  btn.disabled = true; btn.textContent = 'Sending...';
+
+  const res = await fetch('/api/invitations?action=send_all', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminPwd },
+    body: JSON.stringify({ event_id: currentEventId })
+  });
+  const data = await res.json();
+  btn.disabled = false; btn.textContent = '✉ Send all unsent invitations';
+  toast(`✓ Sent ${data.sent} invitation${data.sent !== 1 ? 's' : ''}`);
+  await loadGuests();
+}
+
+async function deleteGuest(id) {
+  if (!confirm('Remove this guest?')) return;
+  await fetch('/api/invitations?action=delete', {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminPwd },
+    body: JSON.stringify({ id })
+  });
+  toast('Guest removed');
+  await loadGuests();
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── AUTO LOGIN ────────────────────────────────────────────────────
+const saved = sessionStorage.getItem('myt_inv_pwd');
+if (saved) {
+  document.getElementById('pwd').value = saved;
+  login();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Invitation — mytikit.pk</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f0; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+.invite-card { background: #fff; border-radius: 20px; overflow: hidden; max-width: 480px; width: 100%; box-shadow: 0 8px 40px rgba(0,0,0,0.12); }
+.invite-header { background: #06291A; padding: 36px 32px; text-align: center; }
+.invite-from { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #6b9e80; margin-bottom: 14px; }
+.invite-event { font-size: 24px; font-weight: 800; color: #fff; line-height: 1.2; letter-spacing: -0.3px; }
+.invite-ribbon { background: #fdf8f0; border-bottom: 1px solid #ede5d0; padding: 12px 32px; text-align: center; }
+.invite-ribbon-text { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #c4731a; }
+.invite-body { padding: 28px 32px; }
+.invite-greeting { font-size: 16px; color: #555; line-height: 1.6; margin-bottom: 24px; }
+.invite-greeting strong { color: #111; }
+.invite-details { background: #f9f9f7; border: 1px solid #e8e8e8; border-radius: 12px; padding: 20px; margin-bottom: 24px; }
+.detail-row { display: flex; align-items: center; gap: 14px; padding: 9px 0; border-bottom: 1px solid #f0f0f0; }
+.detail-row:last-child { border-bottom: none; }
+.detail-icon { font-size: 16px; width: 24px; text-align: center; }
+.detail-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #aaa; min-width: 60px; }
+.detail-val { font-size: 14px; font-weight: 600; color: #111; }
+.detail-val.highlight { color: #06291A; font-weight: 800; }
+.qr-section { text-align: center; margin-bottom: 24px; }
+.qr-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-bottom: 14px; }
+.qr-wrap { display: inline-block; border: 1.5px solid #e8e8e8; border-radius: 14px; padding: 16px; background: #fff; }
+.qr-wrap canvas, .qr-wrap img { display: block; }
+.qr-code-text { font-size: 14px; font-weight: 800; color: #06291A; letter-spacing: 2px; margin-top: 10px; font-family: monospace; }
+.qr-hint { font-size: 12px; color: #888; margin-top: 4px; }
+.plus-badge { display: inline-block; background: #eaf4ed; color: #06291A; font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 100px; margin-bottom: 20px; border: 1px solid #c3e0cc; }
+.invite-footer-note { font-size: 12px; color: #aaa; line-height: 1.6; border-top: 1px solid #f0f0f0; padding-top: 18px; margin-top: 4px; }
+.invite-card-footer { background: #f5f5f0; padding: 16px 32px; text-align: center; }
+.footer-logo { font-size: 13px; font-weight: 700; color: #06291A; }
+.footer-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
+.loading { text-align: center; color: #888; padding: 60px; }
+.error-card { text-align: center; padding: 40px; }
+.error-card h2 { color: #e53e3e; margin-bottom: 8px; }
+.error-card p { color: #888; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="invite-card" id="invite-card">
+  <div class="loading" id="loading">Loading your invitation...</div>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const code = params.get('code');
+
+if (!code) {
+  document.getElementById('invite-card').innerHTML = '<div class="error-card"><h2>Invalid link</h2><p>This invitation link is not valid.</p></div>';
+} else {
+  fetch('/api/scan', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code: code.toUpperCase() })
+  })
+  .then(r => r.json())
+  .then(data => {
+    // We just need to display the invitation, not check in yet
+    // Fetch the actual invitation data without scanning
+    return fetch('/api/invitations-public?code=' + code.toUpperCase());
+  })
+  .catch(() => null);
+
+  // Fetch invite details directly from supabase public endpoint
+  fetch(`/api/invite-view?code=${code.toUpperCase()}`)
+    .then(r => r.json())
+    .then(renderInvite)
+    .catch(() => renderError());
+}
+
+function renderInvite(data) {
+  if (!data || data.error) { renderError(); return; }
+
+  const dateStr = data.event_date
+    ? new Date(data.event_date).toLocaleDateString('en-PK', { weekday:'long', day:'numeric', month:'long', year:'numeric' })
+    : '—';
+
+  document.getElementById('invite-card').innerHTML = `
+    <div class="invite-header">
+      <div class="invite-from">mytikit.pk presents</div>
+      <div class="invite-event">${data.event_name}</div>
+    </div>
+    <div class="invite-ribbon"><span class="invite-ribbon-text">You are cordially invited</span></div>
+    <div class="invite-body">
+      <p class="invite-greeting">Dear <strong>${data.guest_name}</strong>,<br><br>You have been personally invited to attend this exclusive event.</p>
+      ${data.plus_one ? '<div class="plus-badge">✓ Your invitation includes a +1 guest</div>' : ''}
+      <div class="invite-details">
+        <div class="detail-row"><span class="detail-icon">📅</span><span class="detail-label">Date</span><span class="detail-val">${dateStr}</span></div>
+        <div class="detail-row"><span class="detail-icon">🕖</span><span class="detail-label">Time</span><span class="detail-val">${data.event_time}</span></div>
+        <div class="detail-row"><span class="detail-icon">📍</span><span class="detail-label">Venue</span><span class="detail-val">${data.event_venue}, ${data.event_city}</span></div>
+        <div class="detail-row"><span class="detail-icon">👔</span><span class="detail-label">Dress</span><span class="detail-val">${data.dress_code || 'Formal'}</span></div>
+        ${data.table_number ? `<div class="detail-row"><span class="detail-icon">🪑</span><span class="detail-label">Table</span><span class="detail-val highlight">${data.table_number}</span></div>` : ''}
+      </div>
+      <div class="qr-section">
+        <div class="qr-label">Your entrance QR code</div>
+        <div class="qr-wrap" id="qr-container"></div>
+        <div class="qr-code-text">${data.invite_code}</div>
+        <div class="qr-hint">Show this at the entrance</div>
+      </div>
+      <div class="invite-footer-note">This invitation is personal and non-transferable. Please bring a valid ID. Do not share this QR code with others.</div>
+    </div>
+    <div class="invite-card-footer"><div class="footer-logo">mytikit.pk</div><div class="footer-sub">Pakistan's ticketing platform</div></div>
+  `;
+
+  new QRCode(document.getElementById('qr-container'), {
+    text: data.invite_code, width: 180, height: 180,
+    colorDark: '#06291A', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.L
+  });
+}
+
+function renderError() {
+  document.getElementById('invite-card').innerHTML = '<div class="error-card"><h2>Invitation not found</h2><p>This link may be invalid or expired. Please contact the organiser.</p></div>';
+}
+</script>
+</body>
+</html>
