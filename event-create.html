@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Event — mytikit Admin</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f9f7; color: #111; min-height: 100vh; }
+
+/* LOGIN */
+.login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.login-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 14px; padding: 36px; width: 340px; text-align: center; }
+.login-logo { font-size: 20px; font-weight: 800; color: #06291A; margin-bottom: 4px; }
+.login-sub { font-size: 13px; color: #888; margin-bottom: 24px; }
+.login-err { font-size: 13px; color: #e53e3e; margin-top: 8px; display: none; }
+
+/* NAV */
+nav { background: #06291A; padding: 0 32px; height: 56px; display: flex; align-items: center; justify-content: space-between; }
+.nav-logo { font-size: 17px; font-weight: 800; color: #fff; }
+.nav-links { display: flex; align-items: center; gap: 16px; }
+.nav-link { color: #6b9e80; font-size: 13px; text-decoration: none; }
+.nav-link:hover { color: #fff; }
+.btn-signout { background: none; border: 1px solid rgba(255,255,255,0.2); color: #a8c4b0; font-size: 12px; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-family: inherit; }
+
+/* MAIN */
+.main { max-width: 760px; margin: 0 auto; padding: 36px 32px; }
+.page-title { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px; }
+.page-sub { font-size: 14px; color: #888; margin-bottom: 28px; }
+
+/* TYPE TOGGLE */
+.type-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 28px; }
+.type-card { border: 2px solid #e8e8e8; border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.15s; background: #fff; text-align: left; }
+.type-card:hover { border-color: #06291A; }
+.type-card.selected { border-color: #06291A; background: #f3faf5; }
+.type-icon { font-size: 28px; margin-bottom: 10px; }
+.type-name { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
+.type-desc { font-size: 13px; color: #888; line-height: 1.4; }
+
+/* FORM CARD */
+.form-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 14px; padding: 28px; margin-bottom: 20px; }
+.form-section-title { font-size: 15px; font-weight: 800; color: #06291A; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; }
+.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.form-group { margin-bottom: 16px; }
+.form-group:last-child { margin-bottom: 0; }
+label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin-bottom: 6px; }
+label span { color: #e53e3e; }
+input[type=text], input[type=date], input[type=number], select, textarea {
+  width: 100%; border: 1.5px solid #e0e0e0; border-radius: 8px;
+  padding: 10px 13px; font-size: 14px; font-family: inherit; outline: none;
+  background: #fff; color: #111;
+}
+input:focus, select:focus, textarea:focus { border-color: #06291A; }
+textarea { resize: vertical; min-height: 80px; }
+.slug-wrap { position: relative; }
+.slug-prefix { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); font-size: 13px; color: #aaa; pointer-events: none; }
+.slug-input { padding-left: 90px !important; }
+.hint { font-size: 11px; color: #aaa; margin-top: 4px; }
+
+/* COLOR PICKER */
+.color-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.color-swatch { height: 44px; border-radius: 8px; cursor: pointer; border: 3px solid transparent; transition: all 0.15s; }
+.color-swatch.selected { border-color: #06291A; transform: scale(1.05); }
+.color-swatch.red    { background: linear-gradient(135deg, #5c1010, #2d0808); }
+.color-swatch.brown  { background: linear-gradient(135deg, #5c3a00, #2d1a00); }
+.color-swatch.green  { background: linear-gradient(135deg, #06291A, #041a10); }
+.color-swatch.dark   { background: linear-gradient(135deg, #1a1a2e, #0a0a1a); }
+.color-swatch.purple { background: linear-gradient(135deg, #3a0a5c, #1a0430); }
+.color-label { font-size: 10px; text-align: center; color: #888; margin-top: 4px; }
+
+/* TICKET TIERS */
+.tiers-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 14px; }
+.tier-row { border: 1.5px solid #e8e8e8; border-radius: 10px; padding: 16px; position: relative; }
+.tier-row-grid { display: grid; grid-template-columns: 2fr 1fr 2fr 1fr; gap: 12px; align-items: end; }
+.btn-remove-tier { position: absolute; top: 10px; right: 10px; background: none; border: none; color: #ccc; font-size: 18px; cursor: pointer; line-height: 1; }
+.btn-remove-tier:hover { color: #e53e3e; }
+.btn-add-tier { background: #f9f9f7; border: 1.5px dashed #d0d0d0; border-radius: 8px; padding: 11px; width: 100%; font-size: 14px; font-weight: 600; color: #888; cursor: pointer; font-family: inherit; }
+.btn-add-tier:hover { border-color: #06291A; color: #06291A; background: #f3faf5; }
+
+/* ACTIONS */
+.actions { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+.btn-create { background: #06291A; color: #fff; border: none; border-radius: 9px; padding: 14px 32px; font-size: 16px; font-weight: 800; cursor: pointer; font-family: inherit; }
+.btn-create:hover { background: #0a3d26; }
+.btn-create:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-secondary { background: #fff; color: #555; border: 1.5px solid #e0e0e0; border-radius: 9px; padding: 13px 24px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; text-decoration: none; display: inline-block; }
+.btn-secondary:hover { border-color: #06291A; color: #06291A; }
+
+/* SUCCESS */
+.success-card { background: #eaf4ed; border: 1px solid #c3e0cc; border-radius: 14px; padding: 28px; text-align: center; display: none; }
+.success-icon { font-size: 48px; margin-bottom: 12px; }
+.success-title { font-size: 22px; font-weight: 800; color: #06291A; margin-bottom: 6px; }
+.success-sub { font-size: 14px; color: #555; margin-bottom: 20px; }
+.success-links { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.success-link { background: #06291A; color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 700; }
+.success-link.outline { background: #fff; color: #06291A; border: 1.5px solid #06291A; }
+
+/* SHARED INPUTS */
+input[type=password] { width: 100%; border: 1.5px solid #e0e0e0; border-radius: 8px; padding: 11px 14px; font-size: 15px; font-family: inherit; outline: none; margin-bottom: 10px; }
+.btn-green { width: 100%; background: #06291A; color: #fff; border: none; border-radius: 8px; padding: 13px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; }
+
+/* TOAST */
+.toast { position: fixed; bottom: 24px; right: 24px; background: #e53e3e; color: #fff; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; transform: translateY(80px); opacity: 0; transition: all 0.3s; z-index: 999; }
+.toast.show { transform: translateY(0); opacity: 1; }
+
+@media (max-width: 640px) {
+  .main { padding: 24px 20px; }
+  nav { padding: 0 20px; }
+  .form-grid-2, .form-grid-3 { grid-template-columns: 1fr; }
+  .tier-row-grid { grid-template-columns: 1fr 1fr; }
+  .type-toggle { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">mytikit.pk</div>
+    <div class="login-sub">Create Event</div>
+    <input type="password" id="pwd" placeholder="Admin password" onkeydown="if(event.key==='Enter')login()">
+    <button class="btn-green" onclick="login()" id="login-btn">Sign in</button>
+    <div class="login-err" id="login-err">Incorrect password</div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" style="display:none;">
+  <nav>
+    <div class="nav-logo">mytikit — Create Event</div>
+    <div class="nav-links">
+      <a href="admin.html" class="nav-link">← Admin dashboard</a>
+      <button class="btn-signout" onclick="signOut()">Sign out</button>
+    </div>
+  </nav>
+
+  <div class="main">
+    <div class="page-title">Create new event</div>
+    <div class="page-sub">Ticketing events go live on mytikitpk.vercel.app immediately. Invitation events appear in the invitations admin.</div>
+
+    <!-- SUCCESS STATE -->
+    <div class="success-card" id="success-card">
+      <div class="success-icon">🎉</div>
+      <div class="success-title" id="success-title">Event created!</div>
+      <div class="success-sub" id="success-sub">Your event is now live.</div>
+      <div class="success-links" id="success-links"></div>
+    </div>
+
+    <!-- FORM -->
+    <div id="form-wrap">
+
+      <!-- TYPE SELECTION -->
+      <div class="type-toggle">
+        <div class="type-card selected" id="type-ticketing" onclick="selectType('ticketing')">
+          <div class="type-icon">🎟</div>
+          <div class="type-name">Ticketing event</div>
+          <div class="type-desc">Paid tickets, online checkout, inventory management, confirmation QR</div>
+        </div>
+        <div class="type-card" id="type-invitation" onclick="selectType('invitation')">
+          <div class="type-icon">✉</div>
+          <div class="type-name">Invitation event</div>
+          <div class="type-desc">Free invitations by email, guest list, gate scanning with QR</div>
+        </div>
+      </div>
+
+      <!-- EVENT DETAILS -->
+      <div class="form-card">
+        <div class="form-section-title">Event details</div>
+
+        <div class="form-group">
+          <label>Event name <span>*</span></label>
+          <input type="text" id="ev-name" placeholder="e.g. Atif Aslam Live in Karachi" oninput="autoSlug()">
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Category <span>*</span></label>
+            <select id="ev-category">
+              <option value="Concert">Concert</option>
+              <option value="Stand-up Comedy">Stand-up Comedy</option>
+              <option value="Theatre">Theatre</option>
+              <option value="Sports">Sports</option>
+              <option value="Fashion">Fashion</option>
+              <option value="Corporate">Corporate</option>
+              <option value="Festival">Festival</option>
+              <option value="Workshop">Workshop</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>City <span>*</span></label>
+            <select id="ev-city">
+              <option value="Karachi">Karachi</option>
+              <option value="Lahore">Lahore</option>
+              <option value="Islamabad">Islamabad</option>
+              <option value="Rawalpindi">Rawalpindi</option>
+              <option value="Faisalabad">Faisalabad</option>
+              <option value="Multan">Multan</option>
+              <option value="Peshawar">Peshawar</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Venue <span>*</span></label>
+          <input type="text" id="ev-venue" placeholder="e.g. National Stadium, Karachi">
+        </div>
+
+        <div class="form-grid-3">
+          <div class="form-group">
+            <label>Date <span>*</span></label>
+            <input type="date" id="ev-date">
+          </div>
+          <div class="form-group">
+            <label>Show time <span>*</span></label>
+            <input type="text" id="ev-time" placeholder="8:00 PM">
+          </div>
+          <div class="form-group" id="doors-group">
+            <label>Doors open</label>
+            <input type="text" id="ev-doors" placeholder="7:00 PM">
+          </div>
+        </div>
+
+        <div class="form-group" id="dress-group" style="display:none;">
+          <label>Dress code</label>
+          <input type="text" id="ev-dress" placeholder="e.g. Black tie / Formal">
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="ev-desc" placeholder="A short description of the event shown to buyers..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>URL slug <span>*</span></label>
+          <div class="slug-wrap">
+            <span class="slug-prefix">event?slug=</span>
+            <input type="text" id="ev-slug" class="slug-input" placeholder="atif-aslam-live">
+          </div>
+          <div class="hint">Auto-generated from name. Only lowercase letters, numbers, and hyphens.</div>
+        </div>
+
+        <!-- COLOUR (ticketing only) -->
+        <div id="colour-section">
+          <label style="margin-bottom:10px;display:block;">Event card colour</label>
+          <div class="color-grid">
+            <div>
+              <div class="color-swatch red selected" data-color="red" onclick="selectColor('red')"></div>
+              <div class="color-label">Red</div>
+            </div>
+            <div>
+              <div class="color-swatch brown" data-color="brown" onclick="selectColor('brown')"></div>
+              <div class="color-label">Brown</div>
+            </div>
+            <div>
+              <div class="color-swatch green" data-color="green" onclick="selectColor('green')"></div>
+              <div class="color-label">Green</div>
+            </div>
+            <div>
+              <div class="color-swatch dark" data-color="dark" onclick="selectColor('dark')"></div>
+              <div class="color-label">Dark</div>
+            </div>
+            <div>
+              <div class="color-swatch purple" data-color="purple" onclick="selectColor('purple')"></div>
+              <div class="color-label">Purple</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TICKET TIERS (ticketing only) -->
+      <div class="form-card" id="tiers-card">
+        <div class="form-section-title">Ticket tiers</div>
+        <div class="tiers-list" id="tiers-list"></div>
+        <button class="btn-add-tier" onclick="addTier()">+ Add ticket tier</button>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="actions">
+        <button class="btn-create" id="create-btn" onclick="createEvent()">Create event →</button>
+        <a href="admin.html" class="btn-secondary">Cancel</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let adminPwd = '';
+let eventType = 'ticketing';
+let selectedColor = 'red';
+let tierCount = 0;
+
+// ── AUTH ──────────────────────────────────────────────────────────
+async function login() {
+  const pwd = document.getElementById('pwd').value.trim();
+  if (!pwd) return;
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true; btn.textContent = 'Checking...';
+
+  const res = await fetch('/api/create-event', {
+    headers: { 'Authorization': 'Bearer ' + pwd }
+  }).catch(() => null);
+
+  if (!res || res.status === 401) {
+    document.getElementById('login-err').style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Sign in';
+    return;
+  }
+
+  adminPwd = pwd;
+  sessionStorage.setItem('myt_admin_pwd', pwd);
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  addTier(); // start with one tier
+}
+
+function signOut() {
+  sessionStorage.removeItem('myt_admin_pwd');
+  adminPwd = '';
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('pwd').value = '';
+}
+
+// ── TYPE ──────────────────────────────────────────────────────────
+function selectType(type) {
+  eventType = type;
+  document.getElementById('type-ticketing').classList.toggle('selected', type === 'ticketing');
+  document.getElementById('type-invitation').classList.toggle('selected', type === 'invitation');
+  document.getElementById('tiers-card').style.display   = type === 'ticketing' ? 'block' : 'none';
+  document.getElementById('colour-section').style.display = type === 'ticketing' ? 'block' : 'none';
+  document.getElementById('doors-group').style.display  = type === 'ticketing' ? 'block' : 'none';
+  document.getElementById('dress-group').style.display  = type === 'invitation' ? 'block' : 'none';
+
+  // Update category options
+  const cat = document.getElementById('ev-category');
+  if (type === 'invitation') {
+    cat.value = 'Fashion';
+  }
+}
+
+// ── COLOUR ────────────────────────────────────────────────────────
+function selectColor(color) {
+  selectedColor = color;
+  document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+  document.querySelector(`.color-swatch.${color}`).classList.add('selected');
+}
+
+// ── SLUG ─────────────────────────────────────────────────────────
+function autoSlug() {
+  const name = document.getElementById('ev-name').value;
+  const slug = name.toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim();
+  document.getElementById('ev-slug').value = slug;
+}
+
+// ── TIERS ─────────────────────────────────────────────────────────
+function addTier() {
+  tierCount++;
+  const id = tierCount;
+  const defaultNames = { 1: 'General', 2: 'VIP', 3: 'Premium' };
+  const defaultPrices = { 1: '2500', 2: '5000', 3: '10000' };
+
+  const div = document.createElement('div');
+  div.className = 'tier-row';
+  div.id = 'tier-' + id;
+  div.innerHTML = `
+    <button class="btn-remove-tier" onclick="removeTier(${id})" title="Remove">×</button>
+    <div class="tier-row-grid">
+      <div class="form-group" style="margin:0;">
+        <label>Tier name *</label>
+        <input type="text" id="tier-name-${id}" placeholder="e.g. Silver" value="${defaultNames[id] || ''}">
+      </div>
+      <div class="form-group" style="margin:0;">
+        <label>Price (Rs.) *</label>
+        <input type="number" id="tier-price-${id}" placeholder="2500" value="${defaultPrices[id] || ''}">
+      </div>
+      <div class="form-group" style="margin:0;">
+        <label>Description</label>
+        <input type="text" id="tier-desc-${id}" placeholder="e.g. General standing area">
+      </div>
+      <div class="form-group" style="margin:0;">
+        <label>Capacity *</label>
+        <input type="number" id="tier-cap-${id}" placeholder="500">
+      </div>
+    </div>`;
+  document.getElementById('tiers-list').appendChild(div);
+}
+
+function removeTier(id) {
+  const el = document.getElementById('tier-' + id);
+  if (el) el.remove();
+}
+
+function getTiers() {
+  const rows = document.querySelectorAll('.tier-row');
+  return Array.from(rows).map((row, i) => {
+    const id = row.id.replace('tier-', '');
+    return {
+      name:           document.getElementById('tier-name-' + id)?.value?.trim() || '',
+      price:          parseInt(document.getElementById('tier-price-' + id)?.value || 0),
+      description:    document.getElementById('tier-desc-' + id)?.value?.trim() || '',
+      total_capacity: parseInt(document.getElementById('tier-cap-' + id)?.value || 0),
+      sort_order:     i + 1
+    };
+  }).filter(t => t.name && t.price > 0);
+}
+
+// ── CREATE ────────────────────────────────────────────────────────
+async function createEvent() {
+  const name  = document.getElementById('ev-name').value.trim();
+  const venue = document.getElementById('ev-venue').value.trim();
+  const date  = document.getElementById('ev-date').value;
+  const slug  = document.getElementById('ev-slug').value.trim();
+
+  if (!name)  { toast('Event name is required'); return; }
+  if (!venue) { toast('Venue is required'); return; }
+  if (!date)  { toast('Date is required'); return; }
+  if (!slug)  { toast('Slug is required'); return; }
+
+  let body = {
+    type:        eventType,
+    name,
+    city:        document.getElementById('ev-city').value,
+    venue,
+    event_time:  document.getElementById('ev-time').value.trim() || '8:00 PM',
+    description: document.getElementById('ev-desc').value.trim(),
+    slug
+  };
+
+  if (eventType === 'ticketing') {
+    const tiers = getTiers();
+    if (!tiers.length) { toast('Add at least one ticket tier'); return; }
+    body = {
+      ...body,
+      category:    document.getElementById('ev-category').value,
+      event_date:  date,
+      doors_time:  document.getElementById('ev-doors').value.trim() || '7:00 PM',
+      image_class: selectedColor,
+      tiers
+    };
+  } else {
+    body = {
+      ...body,
+      date,
+      dress_code: document.getElementById('ev-dress').value.trim() || 'Formal'
+    };
+  }
+
+  const btn = document.getElementById('create-btn');
+  btn.disabled = true; btn.textContent = 'Creating...';
+
+  try {
+    const res = await fetch('/api/create-event', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminPwd },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+
+    if (!res.ok || data.error) {
+      toast(data.error || 'Failed to create event');
+      btn.disabled = false; btn.textContent = 'Create event →';
+      return;
+    }
+
+    // Show success
+    document.getElementById('form-wrap').style.display = 'none';
+    const successCard = document.getElementById('success-card');
+    successCard.style.display = 'block';
+    document.getElementById('success-title').textContent = `"${name}" is live!`;
+
+    if (eventType === 'ticketing') {
+      document.getElementById('success-sub').textContent = 'The event is now visible on mytikitpk.vercel.app';
+      document.getElementById('success-links').innerHTML = `
+        <a href="https://mytikitpk.vercel.app/event.html?slug=${slug}" target="_blank" class="success-link">View event page</a>
+        <a href="https://mytikitpk.vercel.app" target="_blank" class="success-link outline">View all events</a>
+        <a href="event-create.html" class="success-link outline">Create another</a>`;
+    } else {
+      document.getElementById('success-sub').textContent = 'The event is ready. Go to invitations admin to add guests.';
+      document.getElementById('success-links').innerHTML = `
+        <a href="invitations-admin.html" class="success-link">Manage invitations</a>
+        <a href="event-create.html" class="success-link outline">Create another</a>`;
+    }
+
+  } catch (e) {
+    toast('Network error — please try again');
+    btn.disabled = false; btn.textContent = 'Create event →';
+  }
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ── AUTO LOGIN ─────────────────────────────────────────────────────
+const saved = sessionStorage.getItem('myt_admin_pwd');
+if (saved) {
+  document.getElementById('pwd').value = saved;
+  login();
+}
+</script>
+</body>
+</html>
