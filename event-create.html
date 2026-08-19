@@ -278,7 +278,7 @@ input[type=password] { width: 100%; border: 1.5px solid #e0e0e0; border-radius: 
 
       <!-- ACTIONS -->
       <div class="actions">
-        <button class="btn-create" id="create-btn" onclick="createEvent()">Create event →</button>
+        <button class="btn-create" id="create-btn" onclick="submitEvent()">Create event →</button>
         <a href="admin.html" class="btn-secondary">Cancel</a>
       </div>
 
@@ -414,7 +414,7 @@ function getTiers() {
 }
 
 // ── CREATE ────────────────────────────────────────────────────────
-async function createEvent() {
+async function submitEvent() {
   const name  = document.getElementById('ev-name').value.trim();
   const venue = document.getElementById('ev-venue').value.trim();
   const date  = document.getElementById('ev-date').value;
