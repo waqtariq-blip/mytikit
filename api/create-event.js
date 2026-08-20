@@ -62,7 +62,8 @@ export default async function handler(req, res) {
     }
 
     if (type === 'invitation') {
-      const { name, city, venue, date, event_time, dress_code, description, slug: customSlug } = req.body;
+      const { name, city, venue, date, event_time, dress_code, description, slug: customSlug,
+              brand_theme, brand_accent, brand_logo_url, brand_tagline, presenter } = req.body;
 
       if (!name || !venue || !date)
         return res.status(400).json({ error: 'Missing required fields' });
@@ -82,6 +83,21 @@ export default async function handler(req, res) {
 
       if (error) return res.status(500).json({ error: error.message });
       if (!data.success) return res.status(400).json({ error: data.error });
+
+      // Optional per-event branding (defaults preserve the mytikit look when omitted)
+      if (brand_theme || brand_accent || brand_logo_url || brand_tagline || presenter) {
+        const { error: brandErr } = await supabase.rpc('admin_set_event_branding', {
+          p_slug:      slug,
+          p_theme:     brand_theme    || null,
+          p_accent:    brand_accent   || null,
+          p_logo_url:  brand_logo_url || null,
+          p_tagline:   brand_tagline  || null,
+          p_presenter: presenter      || null
+        });
+        // Non-fatal: the event is created even if branding fails to persist.
+        if (brandErr) data.brand_warning = brandErr.message;
+      }
+
       return res.status(201).json(data);
     }
 
