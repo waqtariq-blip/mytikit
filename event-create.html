@@ -40,19 +40,23 @@ nav { background: #06291A; padding: 0 32px; height: 56px; display: flex; align-i
 /* FORM CARD */
 .form-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 14px; padding: 28px; margin-bottom: 20px; }
 .form-section-title { font-size: 15px; font-weight: 800; color: #06291A; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; }
+.form-section-title small { display:block; font-weight:600; color:#aaa; font-size:12px; margin-top:4px; text-transform:none; letter-spacing:0; }
 .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
 .form-group { margin-bottom: 16px; }
 .form-group:last-child { margin-bottom: 0; }
 label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin-bottom: 6px; }
 label span { color: #e53e3e; }
-input[type=text], input[type=date], input[type=number], select, textarea {
+input[type=text], input[type=date], input[type=number], input[type=url], select, textarea {
   width: 100%; border: 1.5px solid #e0e0e0; border-radius: 8px;
   padding: 10px 13px; font-size: 14px; font-family: inherit; outline: none;
   background: #fff; color: #111;
 }
 input:focus, select:focus, textarea:focus { border-color: #06291A; }
 textarea { resize: vertical; min-height: 80px; }
+input[type=color] { width: 52px; height: 42px; border: 1.5px solid #e0e0e0; border-radius: 8px; padding: 3px; background: #fff; cursor: pointer; }
+.accent-row { display: flex; align-items: center; gap: 10px; }
+.accent-row input[type=text] { flex: 1; }
 .slug-wrap { position: relative; }
 .slug-prefix { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); font-size: 13px; color: #aaa; pointer-events: none; }
 .slug-input { padding-left: 90px !important; }
@@ -269,6 +273,44 @@ input[type=password] { width: 100%; border: 1.5px solid #e0e0e0; border-radius: 
         </div>
       </div>
 
+      <!-- BRANDING (invitation only) -->
+      <div class="form-card" id="branding-card" style="display:none;">
+        <div class="form-section-title">Invitation branding <small>White-label the guest email and invite page for this event. Leave blank to use the default mytikit look.</small></div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Theme</label>
+            <select id="ev-brand-theme">
+              <option value="light">Light (mytikit default)</option>
+              <option value="dark">Dark (editorial)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Accent colour</label>
+            <div class="accent-row">
+              <input type="color" id="ev-brand-accent-picker" value="#06291A" oninput="syncAccent('picker')">
+              <input type="text" id="ev-brand-accent" value="#06291A" placeholder="#FF3A3A" oninput="syncAccent('text')">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Logo URL</label>
+          <input type="url" id="ev-brand-logo" placeholder="https://.../logo.png (white/transparent works best)">
+          <div class="hint">Shown at the top of the email and invite page. Leave blank to show the event name as text.</div>
+        </div>
+
+        <div class="form-group">
+          <label>Presenter line</label>
+          <input type="text" id="ev-brand-presenter" placeholder="e.g. LAAM Fashion Week presents">
+        </div>
+
+        <div class="form-group">
+          <label>Tagline</label>
+          <input type="text" id="ev-brand-tagline" placeholder="e.g. Globally Relevant. Culturally Rooted. Digitally Connected.">
+        </div>
+      </div>
+
       <!-- TICKET TIERS (ticketing only) -->
       <div class="form-card" id="tiers-card">
         <div class="form-section-title">Ticket tiers</div>
@@ -333,6 +375,7 @@ function selectType(type) {
   document.getElementById('type-invitation').classList.toggle('selected', type === 'invitation');
   document.getElementById('tiers-card').style.display   = type === 'ticketing' ? 'block' : 'none';
   document.getElementById('colour-section').style.display = type === 'ticketing' ? 'block' : 'none';
+  document.getElementById('branding-card').style.display  = type === 'invitation' ? 'block' : 'none';
   document.getElementById('doors-group').style.display  = type === 'ticketing' ? 'block' : 'none';
   document.getElementById('dress-group').style.display  = type === 'invitation' ? 'block' : 'none';
 
@@ -348,6 +391,14 @@ function selectColor(color) {
   selectedColor = color;
   document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
   document.querySelector(`.color-swatch.${color}`).classList.add('selected');
+}
+
+// keep the accent colour picker and hex text field in sync
+function syncAccent(source) {
+  const picker = document.getElementById('ev-brand-accent-picker');
+  const text = document.getElementById('ev-brand-accent');
+  if (source === 'picker') { text.value = picker.value; }
+  else { if (/^#[0-9a-fA-F]{6}$/.test(text.value)) picker.value = text.value; }
 }
 
 // ── SLUG ─────────────────────────────────────────────────────────
@@ -450,7 +501,13 @@ async function submitEvent() {
     body = {
       ...body,
       date,
-      dress_code: document.getElementById('ev-dress').value.trim() || 'Formal'
+      dress_code: document.getElementById('ev-dress').value.trim() || 'Formal',
+      // per-event white-label branding (all optional)
+      brand_theme:    document.getElementById('ev-brand-theme').value,
+      brand_accent:   document.getElementById('ev-brand-accent').value.trim(),
+      brand_logo_url: document.getElementById('ev-brand-logo').value.trim(),
+      brand_tagline:  document.getElementById('ev-brand-tagline').value.trim(),
+      presenter:      document.getElementById('ev-brand-presenter').value.trim()
     };
   }
 

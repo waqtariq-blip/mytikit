@@ -4,46 +4,116 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Your Invitation — mytikit.pk</title>
+<meta name="theme-color" content="#000000">
+<!--
+  ============================================================================
+  invite.html — GUEST INVITATION VIEW (white-label, per-event branding)
+  ----------------------------------------------------------------------------
+  Reads ?code=XXX -> /api/invite-view -> renders the guest's pass.
+  Branding is per-event: brand_theme ('light'|'dark'), brand_accent (hex),
+  brand_logo_url, brand_tagline, presenter. Defaults reproduce the mytikit
+  look, so every other event is unchanged. LAAM's event row -> dark theme.
+  NOTE: removed the POST /api/scan on view (it was checking guests in on open).
+  ============================================================================
+-->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f0; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
-.invite-card { background: #fff; border-radius: 20px; overflow: hidden; max-width: 480px; width: 100%; box-shadow: 0 8px 40px rgba(0,0,0,0.12); }
-.invite-header { background: #06291A; padding: 36px 32px; text-align: center; }
-.invite-from { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #6b9e80; margin-bottom: 14px; }
-.invite-event { font-size: 24px; font-weight: 800; color: #fff; line-height: 1.2; letter-spacing: -0.3px; }
-.invite-ribbon { background: #fdf8f0; border-bottom: 1px solid #ede5d0; padding: 12px 32px; text-align: center; }
-.invite-ribbon-text { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #c4731a; }
-.invite-body { padding: 28px 32px; }
-.invite-greeting { font-size: 16px; color: #555; line-height: 1.6; margin-bottom: 24px; }
-.invite-greeting strong { color: #111; }
-.invite-details { background: #f9f9f7; border: 1px solid #e8e8e8; border-radius: 12px; padding: 20px; margin-bottom: 24px; }
-.detail-row { display: flex; align-items: center; gap: 14px; padding: 9px 0; border-bottom: 1px solid #f0f0f0; }
-.detail-row:last-child { border-bottom: none; }
-.detail-icon { font-size: 16px; width: 24px; text-align: center; }
-.detail-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #aaa; min-width: 60px; }
-.detail-val { font-size: 14px; font-weight: 600; color: #111; }
-.detail-val.highlight { color: #06291A; font-weight: 800; }
-.qr-section { text-align: center; margin-bottom: 24px; }
-.qr-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-bottom: 14px; }
-.qr-wrap { display: inline-block; border: 1.5px solid #e8e8e8; border-radius: 14px; padding: 16px; background: #fff; }
-.qr-wrap canvas, .qr-wrap img { display: block; }
-.qr-code-text { font-size: 14px; font-weight: 800; color: #06291A; letter-spacing: 2px; margin-top: 10px; font-family: monospace; }
-.qr-hint { font-size: 12px; color: #888; margin-top: 4px; }
-.plus-badge { display: inline-block; background: #eaf4ed; color: #06291A; font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 100px; margin-bottom: 20px; border: 1px solid #c3e0cc; }
-.invite-footer-note { font-size: 12px; color: #aaa; line-height: 1.6; border-top: 1px solid #f0f0f0; padding-top: 18px; margin-top: 4px; }
-.invite-card-footer { background: #f5f5f0; padding: 16px 32px; text-align: center; }
-.footer-logo { font-size: 13px; font-weight: 700; color: #06291A; }
-.footer-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
-.loading { text-align: center; color: #888; padding: 60px; }
-.error-card { text-align: center; padding: 40px; }
-.error-card h2 { color: #e53e3e; margin-bottom: 8px; }
-.error-card p { color: #888; font-size: 14px; }
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+/* ---- theme variables (defaults = mytikit light) ---- */
+body{
+  --accent:#06291A;
+  --bg:#f5f5f0; --card:#fff; --line:#eee; --text:#111; --grey:#555; --muted:#888;
+  --hfont:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; --hweight:800; --name-size:24px;
+  --header-bg:var(--accent); --from-color:rgba(255,255,255,0.72); --name-color:#fff;
+  --ribbon-bg:#fdf8f0; --ribbon-border:#ede5d0; --ribbon-color:var(--accent);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:var(--bg); color:var(--text); min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+body.theme-dark{
+  --bg:#000; --card:#0b0b0b; --line:#232323; --text:#fff; --grey:#d2d3d5; --muted:#7e797e;
+  --hfont:'Cormorant Garamond',Georgia,serif; --hweight:600; --name-size:40px;
+  --header-bg:transparent; --from-color:var(--accent); --name-color:#fff;
+  --ribbon-bg:transparent; --ribbon-border:#232323; --ribbon-color:#d2d3d5;
+  font-family:'Inter',-apple-system,'Segoe UI',sans-serif;
+}
+
+/* ---- ticker (dark only) ---- */
+.ticker{ border-bottom:1px solid var(--line); overflow:hidden; white-space:nowrap; background:#000; }
+.ticker__t{ display:inline-block; padding:10px 0; animation:scroll 30s linear infinite; }
+.ticker span{ font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--grey); font-weight:600; }
+.ticker b{ color:var(--accent); margin:0 16px; }
+@keyframes scroll{ from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+.stage{ display:flex; align-items:center; justify-content:center; padding:40px 22px 60px; }
+.invite-card{ background:var(--card); border:1px solid var(--line); border-radius:18px; overflow:hidden; max-width:490px; width:100%; }
+body.theme-light .invite-card{ box-shadow:0 8px 40px rgba(0,0,0,0.10); border:none; }
+body.theme-dark .invite-card{ border-radius:8px; }
+
+.invite-header{ background:var(--header-bg); text-align:center; padding:36px 32px 30px; }
+body.theme-dark .invite-header{ padding:40px 34px 28px; border-bottom:1px solid var(--line); }
+.invite-logo{ max-width:180px; max-height:56px; width:auto; margin:0 auto 18px; display:block; }
+.invite-from{ font-size:10px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:var(--from-color); margin-bottom:13px; }
+.invite-event{ font-family:var(--hfont); font-weight:var(--hweight); font-size:var(--name-size); color:var(--name-color); line-height:1.08; letter-spacing:-0.3px; }
+.invite-meta{ margin-top:12px; font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--from-color); }
+
+.invite-ribbon{ background:var(--ribbon-bg); border-bottom:1px solid var(--ribbon-border); padding:13px 32px; text-align:center; }
+.invite-ribbon-text{ font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--ribbon-color); }
+
+.invite-body{ padding:28px 32px 8px; }
+.invite-greeting{ font-size:16px; color:var(--grey); line-height:1.6; margin-bottom:8px; }
+.invite-greeting strong{ color:var(--text); }
+body.theme-dark .invite-greeting{ font-family:'Cormorant Garamond',Georgia,serif; font-size:21px; color:#fff; }
+body.theme-dark .invite-greeting .sub{ display:block; font-family:'Inter',sans-serif; font-size:14px; color:#c9c9cc; margin-top:10px; }
+.plus-badge{ display:inline-block; font-size:11px; font-weight:600; letter-spacing:0.4px; padding:7px 14px; border-radius:100px; margin:18px 0 2px; border:1px solid var(--accent); color:var(--accent); }
+body.theme-dark .plus-badge{ border-radius:2px; letter-spacing:2px; text-transform:uppercase; font-size:10px; color:#fff; }
+
+.invite-details{ border:1px solid var(--line); border-radius:12px; padding:6px 20px; margin:22px 0 4px; }
+body.theme-light .invite-details{ background:#f9f9f7; }
+body.theme-dark .invite-details{ border-radius:4px; }
+.detail-row{ display:flex; align-items:center; gap:14px; padding:12px 0; border-bottom:1px solid var(--line); }
+.detail-row:last-child{ border-bottom:none; }
+.detail-label{ font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:1.5px; color:var(--muted); min-width:64px; }
+.detail-val{ font-size:14px; font-weight:600; color:var(--text); }
+.detail-val.hl{ color:var(--accent); font-weight:800; }
+
+.qr-section{ text-align:center; padding:24px 0 6px; border-top:1px solid var(--line); margin-top:20px; }
+.qr-label{ font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:2px; color:var(--muted); margin-bottom:14px; }
+.qr-wrap{ display:inline-block; background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px; }
+.qr-wrap canvas, .qr-wrap img{ display:block; }
+.qr-code-text{ font-size:15px; font-weight:800; color:var(--accent); letter-spacing:3px; margin-top:12px; }
+body.theme-dark .qr-code-text{ color:#fff; font-weight:700; letter-spacing:4px; }
+.qr-hint{ font-size:12px; color:var(--muted); margin-top:6px; }
+
+.invite-note{ font-size:11px; color:var(--muted); line-height:1.7; border-top:1px solid var(--line); padding:16px 0 6px; margin-top:20px; }
+.invite-tagline{ text-align:center; font-family:'Cormorant Garamond',Georgia,serif; font-style:italic; font-size:16px; color:var(--grey); padding:8px 0 4px; }
+
+.invite-card-footer{ text-align:center; padding:18px 32px; }
+body.theme-light .invite-card-footer{ background:#f5f5f0; }
+body.theme-dark .invite-card-footer{ background:#080808; border-top:1px solid var(--line); }
+.footer-logo{ font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--accent); }
+body.theme-dark .footer-logo{ color:#fff; letter-spacing:3px; }
+.footer-sub{ font-size:11px; color:var(--muted); margin-top:5px; }
+
+.loading, .error-card{ text-align:center; padding:70px 34px; color:var(--muted); }
+.error-card h2{ font-family:var(--hfont); color:var(--text); font-size:24px; margin-bottom:10px; }
+.error-card p{ color:var(--muted); font-size:14px; }
+.spin{ width:26px; height:26px; border:2px solid var(--line); border-top-color:var(--accent); border-radius:50%; margin:0 auto 16px; animation:sp .8s linear infinite; }
+@keyframes sp{ to{ transform:rotate(360deg); } }
+
+@media(max-width:520px){ body.theme-dark{ --name-size:32px; } .invite-header{ padding:30px 24px 24px; } .invite-body{ padding:24px 24px 6px; } }
 </style>
 </head>
-<body>
-<div class="invite-card" id="invite-card">
-  <div class="loading" id="loading">Loading your invitation...</div>
+<body class="theme-light">
+
+<div class="stage">
+  <div class="invite-card" id="invite-card">
+    <div class="loading"><div class="spin"></div>Loading your invitation…</div>
+  </div>
 </div>
 
 <script>
@@ -51,70 +121,89 @@ const params = new URLSearchParams(window.location.search);
 const code = params.get('code');
 
 if (!code) {
-  document.getElementById('invite-card').innerHTML = '<div class="error-card"><h2>Invalid link</h2><p>This invitation link is not valid.</p></div>';
+  document.getElementById('invite-card').innerHTML =
+    '<div class="error-card"><h2>Invalid link</h2><p>This invitation link is not valid.</p></div>';
 } else {
-  fetch('/api/scan', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ code: code.toUpperCase() })
-  })
-  .then(r => r.json())
-  .then(data => {
-    // We just need to display the invitation, not check in yet
-    // Fetch the actual invitation data without scanning
-    return fetch('/api/invitations-public?code=' + code.toUpperCase());
-  })
-  .catch(() => null);
-
-  // Fetch invite details directly from supabase public endpoint
+  // View-only fetch. (No gate check-in on view.)
   fetch(`/api/invite-view?code=${code.toUpperCase()}`)
     .then(r => r.json())
     .then(renderInvite)
-    .catch(() => renderError());
+    .catch(renderError);
 }
 
-function renderInvite(data) {
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function renderInvite(data){
   if (!data || data.error) { renderError(); return; }
+
+  // ---- apply per-event branding ----
+  const theme  = (data.brand_theme === 'dark') ? 'dark' : 'light';
+  const accent = data.brand_accent || (theme === 'dark' ? '#FF3A3A' : '#06291A');
+  document.body.className = 'theme-' + theme;
+  document.body.style.setProperty('--accent', accent);
 
   const dateStr = data.event_date
     ? new Date(data.event_date).toLocaleDateString('en-PK', { weekday:'long', day:'numeric', month:'long', year:'numeric' })
     : '—';
+  const venue = [data.event_venue, data.event_city].filter(Boolean).map(esc).join(', ');
+
+  const ticker = theme === 'dark'
+    ? `<div class="ticker"><div class="ticker__t"><span>${esc(data.event_name)}<b>&bull;</b>${esc(data.event_name)}<b>&bull;</b>${esc(data.event_name)}<b>&bull;</b>${esc(data.event_name)}<b>&bull;</b></span></div></div>`
+    : '';
+
+  const logo = data.brand_logo_url
+    ? `<img class="invite-logo" src="${esc(data.brand_logo_url)}" alt="${esc(data.event_name)}">` : '';
+
+  const lead = theme === 'dark'
+    ? `<span class="sub">You have been personally invited to attend this private, invitation-only event.</span>`
+    : `<br><br>You have been personally invited to attend this exclusive event.`;
+
+  const stage = document.querySelector('.stage');
+  if (ticker) stage.insertAdjacentHTML('beforebegin', ticker);
 
   document.getElementById('invite-card').innerHTML = `
     <div class="invite-header">
-      <div class="invite-from">mytikit.pk presents</div>
-      <div class="invite-event">${data.event_name}</div>
+      ${logo}
+      <div class="invite-from">${esc(data.presenter || 'You are invited')}</div>
+      <div class="invite-event">${esc(data.event_name)}</div>
+      ${data.event_city ? `<div class="invite-meta">${esc(data.event_city)}</div>` : ''}
     </div>
     <div class="invite-ribbon"><span class="invite-ribbon-text">You are cordially invited</span></div>
     <div class="invite-body">
-      <p class="invite-greeting">Dear <strong>${data.guest_name}</strong>,<br><br>You have been personally invited to attend this exclusive event.</p>
-      ${data.plus_one ? '<div class="plus-badge">✓ Your invitation includes a +1 guest</div>' : ''}
+      <p class="invite-greeting">Dear <strong>${esc(data.guest_name)}</strong>,${lead}</p>
+      ${data.plus_one ? '<div class="plus-badge">Your invitation includes a +1 guest</div>' : ''}
       <div class="invite-details">
-        <div class="detail-row"><span class="detail-icon">📅</span><span class="detail-label">Date</span><span class="detail-val">${dateStr}</span></div>
-        <div class="detail-row"><span class="detail-icon">🕖</span><span class="detail-label">Time</span><span class="detail-val">${data.event_time}</span></div>
-        <div class="detail-row"><span class="detail-icon">📍</span><span class="detail-label">Venue</span><span class="detail-val">${data.event_venue}, ${data.event_city}</span></div>
-        <div class="detail-row"><span class="detail-icon">👔</span><span class="detail-label">Dress</span><span class="detail-val">${data.dress_code || 'Formal'}</span></div>
-        ${data.table_number ? `<div class="detail-row"><span class="detail-icon">🪑</span><span class="detail-label">Table</span><span class="detail-val highlight">${data.table_number}</span></div>` : ''}
+        <div class="detail-row"><span class="detail-label">Date</span><span class="detail-val">${dateStr}</span></div>
+        <div class="detail-row"><span class="detail-label">Time</span><span class="detail-val">${esc(data.event_time)}</span></div>
+        <div class="detail-row"><span class="detail-label">Venue</span><span class="detail-val">${venue}</span></div>
+        <div class="detail-row"><span class="detail-label">Dress</span><span class="detail-val">${esc(data.dress_code || 'Formal')}</span></div>
+        ${data.table_number ? `<div class="detail-row"><span class="detail-label">Seating</span><span class="detail-val hl">${esc(data.table_number)}</span></div>` : ''}
       </div>
       <div class="qr-section">
-        <div class="qr-label">Your entrance QR code</div>
+        <div class="qr-label">Your entrance pass</div>
         <div class="qr-wrap" id="qr-container"></div>
-        <div class="qr-code-text">${data.invite_code}</div>
-        <div class="qr-hint">Show this at the entrance</div>
+        <div class="qr-code-text">${esc(data.invite_code)}</div>
+        <div class="qr-hint">Present this QR at the entrance</div>
       </div>
-      <div class="invite-footer-note">This invitation is personal and non-transferable. Please bring a valid ID. Do not share this QR code with others.</div>
+      <div class="invite-note">This invitation is personal and non-transferable. Please bring valid photo ID. Do not share this QR code.</div>
+      ${data.brand_tagline ? `<div class="invite-tagline">${esc(data.brand_tagline)}</div>` : ''}
     </div>
-    <div class="invite-card-footer"><div class="footer-logo">mytikit.pk</div><div class="footer-sub">Pakistan's ticketing platform</div></div>
+    <div class="invite-card-footer">
+      <div class="footer-logo">${esc(data.event_name)}</div>
+      <div class="footer-sub">Invitation only</div>
+    </div>
   `;
 
   new QRCode(document.getElementById('qr-container'), {
     text: data.invite_code, width: 180, height: 180,
-    colorDark: '#06291A', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.L
+    colorDark: theme === 'dark' ? '#000000' : accent,
+    colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M
   });
 }
 
-function renderError() {
-  document.getElementById('invite-card').innerHTML = '<div class="error-card"><h2>Invitation not found</h2><p>This link may be invalid or expired. Please contact the organiser.</p></div>';
+function renderError(){
+  document.getElementById('invite-card').innerHTML =
+    '<div class="error-card"><h2>Invitation not found</h2><p>This link may be invalid or expired. Please contact the organiser.</p></div>';
 }
 </script>
 </body>
